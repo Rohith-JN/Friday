@@ -1,3 +1,5 @@
+import math
+import random
 import speech_recognition as sr
 import pyttsx3
 import datetime
@@ -10,11 +12,16 @@ import time
 import subprocess
 import screen_brightness_control as sbc
 import pyjokes
+import requests
+from dotenv import load_dotenv
 
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
 
 def there_exists(terms):
     for term in terms:
-        if term in statement:
+        if term in response:
             return True
 
 
@@ -33,13 +40,20 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
+def getLocation():
+    res = requests.get("https://ipinfo.io/")
+    data = res.json()
+    city = data["city"].split(',')
+    state = data["region"].split(',')
+    return city
+
 
 def wishMe():
     hour = datetime.datetime.now().hour
-    if hour >= 0 and hour < 12:
+    if 0 <= hour < 12:
         speak("Good Morning Boss")
         print("Good Morning Boss")
-    elif hour >= 12 and hour < 18:
+    elif 12 <= hour < 18:
         speak("Good Afternoon Boss")
         print("Good Afternoon Boss")
     else:
@@ -54,83 +68,70 @@ def takeCommand():
         audio = r.listen(source)
 
         try:
-            statement = r.recognize_google(audio, language='en-in')
-            print(f"user said:{statement}\n")
+            response = r.recognize_google(audio, language='en-in')
+            print(f"user said:{response}\n")
 
         except Exception as e:
-            speak("Pardon me, please say that again")
             return "None"
-        return statement
+        return response.lower()
 
 
-speak("Your personal assistant, Friday is booting up now")
-wishMe()
-speak("what can I do for you")
+wake = "hello"
 
+while True:
+    print("Listening..")
+    response = takeCommand()
 
-if __name__ == '__main__':
+    if response.count(wake) > 0:
+        speak("Yes boss")
+        response = takeCommand()
 
-    while True:
-        statement = takeCommand().lower()
-        if statement == 0:
-            continue
-
-        if "good bye" in statement or "ok bye" in statement or "stop" in statement or "see you later" in statement or "bye" in statement or "kill program" in statement or "sleep" in statement:
-            speak('Friday is shutting down now, Goodbye boss')
-            print('Friday is shutting down now, Goodbye boss')
+        if "good bye" in response or "ok bye" in response or "stop" in response or "see you later" in response or "bye" in response or "kill program" in response or "sleep" in response:
+            res = ['See you later', 'Good bye..', 'Nice talking with you', 'Bye..']
+            speak(random.choice(res))
             break
 
-        if "how are you" in statement or "how are you doing" in statement:
+        if "how are you" in response or "how are you doing" in response:
             speak("I'm very well, thanks for asking")
 
-        elif 'open youtube' in statement:
+        elif 'open youtube' in response:
             speak("opening youtube")
             webbrowser.open_new_tab("https://www.youtube.com")
             speak("youtube is open now")
             time.sleep(4)
 
-        elif there_exists(["terminate"]):
-            search_term = statement.split("terminate" "")[1]
-            os.system(f"taskkill /f /im {search_term}.exe")
-            speak(f" closed {search_term}")
-
-        elif "battery percentage" in statement or "battery" in statement or "what is the battery percentage" in statement:
+        elif "battery percentage" in response or "battery" in response or "what is the battery percentage" in response:
             speak("Current battery percentage is at" + str(percent) + "percent")
 
-        elif "close sublime text editor" in statement or "close sublime text 3" in statement or "close sublime" in statement:
-            os.system("taskkill /f /im sublime_text.exe")
-            speak("closed sublime text editor")
-
-        elif "close spotify" in statement:
-            os.system("taskkill /f /im EpicGamesLauncher.exe")
-            speak("closed spotify")
-
-        elif "open sublime" in statement or "sublime text 3" in statement:
-            speak("Opening sublime text 3")
-            subprocess.call(
-                "C://Program Files//Sublime Text 3//sublime_text.exe")
-
-        elif "notepad" in statement or "open notepad" in statement:
+        elif "notepad" in response or "open notepad" in response:
             subprocess.call("C://Windows//System32//notepad.exe")
             speak("opened notepad")
 
-        elif "current brightness" in statement or "what is the current brightness" in statement:
+        elif "current brightness" in response or "what is the current brightness" in response:
             speak(str(sbc.get_brightness()) + "percent")
 
+        elif there_exists(["current location","location","where am i","where am i right now"]):
+            res = requests.get("https://ipinfo.io/")
+            data = res.json()
+            city = data["city"].split(',')
+            state = data["region"].split(',')
+            speak(f'You are in {city},{state}')
+            print(f'You are in {city},{state}')
+            
         elif there_exists(["play"]):
-            search_term = statement.replace("play", '')
+            search_term = response.replace("play", '')
             kit.playonyt(search_term)
-            speak(f"Here is what I found for {search_term} on youtube")
+            speak(f"Playing {search_term}")
 
-        elif there_exists(["youtube"]):
-            search_term = statement.replace("youtube", '')
+        elif there_exists(["on youtube"]):
+            search_term = response.replace("on youtube", '')
             url = f"https://www.youtube.com/results?search_query={search_term}"
             webbrowser.get().open(url)
             speak(f'Here is what I found for {search_term} on youtube')
 
         elif there_exists(["price of"]):
             # strip removes whitespace after/before a term in string
-            search_term = statement.lower().split(" of ")[-1].strip()
+            search_term = response.lower().split(" of ")[-1].strip()
             stocks = {
                 "apple": "AAPL",
                 "microsoft": "MSFT",
@@ -148,90 +149,93 @@ if __name__ == '__main__':
             except:
                 speak('oops, something went wrong')
 
-        elif "open vscode" in statement or "open visual studio code" in statement:
+        elif "open vscode" in response or "open visual studio code" in response:
             speak("opening visual studio code")
             subprocess.call(
                 "C://Users//Rohith JN//AppData//Local//Programs//Microsoft VS Code//Code.exe")
 
-        elif "close vscode" in statement or "close visual studio code" in statement:
+        elif "close vscode" in response or "close visual studio code" in response:
             speak("closing visual studio code")
             os.system("taskkill /f /im code.exe")
 
-        elif "tell me a joke" in statement or "joke" in statement:
+        elif "tell me a joke" in response or "joke" in response:
             joke = (pyjokes.get_joke())
             speak(joke)
             print(joke)
 
-        elif "not funny" in statement or "tell me another one" in statement:
-            speak("do you want me to tell another one")
-
-        elif "yes" in statement or "tell me" in statement:
-            joke = (pyjokes.get_joke())
-            speak(joke)
-            print(joke)
-
-        elif 'open google' in statement:
+        elif 'open google' in response:
             webbrowser.open_new_tab("https://www.google.com")
             speak("Google chrome is open now")
             time.sleep(5)
 
-        elif 'open gmail' in statement:
+        elif 'open gmail' in response:
             speak("opening gmail")
             webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
             speak("Gmail is open now")
             time.sleep(5)
 
-        elif "open a new tab in google" in statement or "open new tab" in statement:
+        elif "open a new tab in google" in response or "open new tab" in response:
             webbrowser.open_new_tab("https://www.google.com")
             speak("Opened new tab")
 
-        elif there_exists(["search for"]) and 'youtube' not in statement:
-            search_term = statement.split("for")[-1]
+        elif there_exists(["search for"]) and 'youtube' not in response:
+            search_term = response.split("for")[-1]
             url = f"https://google.com/search?q={search_term}"
             webbrowser.get().open(url)
             speak(f'Here is what I found for {search_term} on google')
 
-        elif "close google" in statement or "shutdown google" in statement:
+        elif "close google" in response or "shutdown google" in response:
             os.system("taskkill /f /im chrome.exe")
 
-        elif 'time' in statement or "what is the time" in statement or "what's the time" in statement:
+        elif 'time' in response or "what is the time" in response or "what's the time" in response:
             strTime = datetime.datetime.now().strftime("%H:%M:%S")
             speak(f"the time is {strTime}")
 
-        elif 'who are you' in statement or 'what can you do' in statement:
+        elif 'who are you' in response or 'what can you do' in response:
             speak('I am Friday your personal assistant. I am programmed to minor tasks like'
                   'opening youtube,google chrome, gmail and stackoverflow ,predict time,take a photo,search wikipedia,predict weather'
                   'in different cities , get top headline news and you can ask me computational or geographical questions too!')
 
-        elif "open stackoverflow" in statement:
+        elif "open stackoverflow" in response:
             webbrowser.open_new_tab("https://stackoverflow.com/login")
             speak("Here is stackoverflow")
 
-        elif "calculator" in statement:
+        elif "calculator" in response:
             subprocess.call("calc.exe")
 
-        elif 'Indian news' in statement:
-            news = webbrowser.open_new_tab(
-                "https://timesofindia.indiatimes.com/home/headlines")
-            speak('Here are some headlines from the Times of India')
-            time.sleep(6)
-
-        elif 'search' in statement:
-            statement = statement.replace("search", "")
-            webbrowser.open_new_tab(statement)
+        elif 'search' in response:
+            response = response.replace("search", "")
+            webbrowser.open_new_tab(response)
             time.sleep(5)
 
-        elif "log off" in statement or "sign out" in statement or "kill switch" in statement:
+        elif "log off" in response or "sign out" in response or "kill switch" in response:
             speak(
                 "Ok , your pc will log off in 10 sec make sure you exit from all applications")
             subprocess.call(["shutdown", "/l"])
 
-        elif "shutdown" in statement:
+        elif "shutdown" in response:
             speak("Shutting down your pc, make sure you exit from all applications")
             subprocess.call(["shutdown", "/s"])
 
-        elif "restart" in statement:
+        elif "restart" in response:
             speak("Restarting laptop, make sure you exit from all applications")
             subprocess.call(["shutdown", "/r"])
+
+        elif there_exists(['weather', 'whats the weather like right now', 'current termperature', 'climate']):
+            api_key=API_KEY
+            base_url="https://api.openweathermap.org/data/2.5/weather?"
+            complete_url=base_url+"appid="+api_key+"&q="+"Bangalore"
+            response = requests.get(complete_url)
+            x=response.json()
+            if x["cod"]!="404":
+                y=x["main"]
+                current_temperature = y["temp"]
+                current_humidiy = y["humidity"]
+                z = x["weather"]
+                weather_description = z[0]["description"]
+                temperature = int(current_temperature - 273.15)
+                speak(f"Current temperature is {temperature} degree celsius with {weather_description}")
+            else:
+                speak(" City Not Found ")
 
 time.sleep(3)
