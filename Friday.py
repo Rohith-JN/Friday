@@ -1,4 +1,3 @@
-from http import client
 import random
 import speech_recognition as sr
 import pyttsx3
@@ -12,11 +11,14 @@ import time
 import subprocess
 import screen_brightness_control as sbc
 import pyjokes
-import requests
 import pyscreenshot
 import calendar
 from dotenv import load_dotenv
 from spotifyClient import *
+from telegramClient import PersonalMessage
+import win10toast
+from telegramCreds import user_id_1, user_id_2, user_id_3, user_id_4
+import asyncio
 
 load_dotenv()
 
@@ -24,13 +26,14 @@ API_KEY = os.getenv("API_KEY")
 CHAT_ID_1 = os.getenv("CHAT_ID_1")
 CHAT_ID_2 = os.getenv("CHAT_ID_2")
 current_brightness = sbc.get_brightness()
+notification = win10toast.ToastNotifier()
 
 
 def getDay():
     today = datetime.datetime.now()
     date = today.strftime("%d %m %y")
     day = datetime.datetime.strptime(date, '%d %m %y').weekday()
-    return (calendar.day_name[day])
+    return calendar.day_name[day]
 
 
 def there_exists(terms):
@@ -56,9 +59,11 @@ def listToString(s):
         str1 += ele
     return str1
 
+
 def speak(text):
     engine.say(text)
     engine.runAndWait()
+
 
 def getLocation():
     res = requests.get("https://ipinfo.io/")
@@ -66,9 +71,10 @@ def getLocation():
     city = data["city"].split(',')
     return listToString(city)
 
+
 def note(text):
     date = datetime.datetime.now()
-    file_name = str(date).replace(':','-') + "-note.txt"
+    file_name = str(date).replace(':', '-') + "-note.txt"
     with open(file_name, "w") as f:
         f.write(text)
 
@@ -88,13 +94,15 @@ def wishMe():
         speak("Good evening Boss")
         print("Good evening Boss")
 
+
 def sendMessage(text, chat_id):
     base_url = "https://api.telegram.org/bot5272158533:AAHheD5P17Oyr4eHv3RdRZYF-5m9oP1bkxY/sendMessage"
     parameters = {
-        "chat_id" : chat_id,
-        "text" : text
+        "chat_id": chat_id,
+        "text": text
     }
-    res = requests.get(base_url, data = parameters)
+    res = requests.get(base_url, data=parameters)
+
 
 def takeCommand():
     r = sr.Recognizer()
@@ -127,7 +135,7 @@ while True:
             break
 
         elif there_exists(['whats the day today', 'what day is it today', 'day']):
-            speak(f'Today is {getDay()}')     
+            speak(f'Today is {getDay()}')
 
         elif "how are you" in response or "how are you doing" in response:
             speak("I'm very well, thanks for asking")
@@ -151,7 +159,7 @@ while True:
             state = data["region"].split(',')
             speak(f'You are in {city},{state}')
             print(f'You are in {city},{state}')
-            
+
         elif there_exists(["play"]):
             search_term = response.replace("play", '')
             kit.playonyt(search_term)
@@ -174,8 +182,7 @@ while True:
                 "meta": "FB",
                 "netflix": "NFLX",
                 "nvidia": "NVDA",
-                "intel": "INTC",
-                "Tata Power": "TATAPOWER"
+                "Intel": "INTC",
             }
             try:
                 stock = stocks[search_term]
@@ -230,6 +237,7 @@ while True:
 
         elif "close google" in response or "shutdown google" in response:
             os.system("taskkill /f /im chrome.exe")
+            speak("Closed google")
 
         elif 'time' in response or "what is the time" in response or "what's the time" in response:
             strTime = datetime.datetime.now().strftime("%H:%M")
@@ -240,7 +248,7 @@ while True:
                   'opening youtube, google chrome, gmail, predict time, take screenshots,'
                   'search google chrome, predict weather etc')
 
-        elif "open stackoverflow" in response:
+        elif "open stackoverflow" in response or "stack overflow" in response:
             webbrowser.open_new_tab("https://stackoverflow.com/login")
             speak("Here is stackoverflow")
 
@@ -268,7 +276,7 @@ while True:
         elif there_exists(['weather', 'whats the weather like right now', 'current temperature', 'climate']):
             api_key = API_KEY
             base_url = "https://api.openweathermap.org/data/2.5/weather?"
-            complete_url = base_url+"appid="+api_key+"&q="+getLocation()
+            complete_url = base_url + "appid=" + api_key + "&q=" + getLocation()
             response = requests.get(complete_url)
             x = response.json()
             if x["cod"] != "404":
@@ -280,12 +288,12 @@ while True:
                 speak(f"Current temperature is {temperature} degree celsius with {weather_description}")
             else:
                 speak(" City Not Found ")
-        
+
         elif there_exists(['increase brightness']):
             brightness = sbc.set_brightness(current_brightness + 10)
             speak(f"Increased brightness by 10 percent")
 
-        elif there_exists(['decrease brightness']):
+        elif there_exists(['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']):
             brightness = sbc.set_brightness(current_brightness - 10)
             speak(f"Decreased brightness by 10 percent")
 
@@ -297,7 +305,7 @@ while True:
                 image.show()
             else:
                 speak("Ok boss")
-        
+
         elif there_exists(['open android studio']):
             speak("Opening android studio")
             subprocess.call(
@@ -325,19 +333,49 @@ while True:
             speak('Closing discord')
             os.system("taskkill /f /im Update.exe")
 
-        elif there_exists(['send a message in telegram', 'send a message']):
-            speak("To which group should I send the message to?")
-            response = takeCommand()
-            if there_exists(['locality group']):
+        elif there_exists(['send a message to']):
+            search_term = response.replace('send a message to', '').lower()
+            if there_exists(['sd dudes', 'locality group']):
                 speak("What should I send?")
                 response = takeCommand()
                 sendMessage(response, CHAT_ID_1)
                 speak("Message sent successfully")
+                notification.show_toast("Personal Assistant", "Sent a message to SD dudes in Telegram", duration=10)
+                
             elif there_exists(['class group', 'epic dudes']):
                 speak("What should I send?")
                 response = takeCommand()
                 sendMessage(response, CHAT_ID_2)
                 speak("Message sent successfully")
+                notification.show_toast("Personal Assistant", "Sent a message to Epic dudes in Telegram", duration=10)
+
+            elif there_exists(['arun', 'Arun']):
+                speak("What should I send?")
+                response = takeCommand()
+                asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_2))
+                speak("Message sent successfully")
+                notification.show_toast("Personal Assistant", "Sent a message to Arun in Telegram", duration=10)
+
+            elif there_exists(['pranav', 'Pranav']):
+                speak("What should I send?")
+                response = takeCommand()
+                asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_1))
+                speak("Message sent successfully")
+                notification.show_toast("Personal Assistant", "Sent a message to Pranav in Telegram",duration=10)
+            
+            elif there_exists(['thomas', 'Thomas']):
+                speak("What should I send?")
+                response = takeCommand()
+                asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_3))
+                speak("Message sent successfully")
+                notification.show_toast("Personal Assistant" ,"Sent a message to Thomas in Telegram", duration=10)
+
+            elif there_exists(['mom', 'rajath']):
+                speak("What should I send?")
+                response = takeCommand()
+                asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_4))
+                speak("Message sent successfully")
+                notification.show_toast("Personal Assistant" ,"Sent a message to Rajath in Telegram", duration=10)
 
         elif there_exists(['open github desktop', 'github desktop']):
             speak("Opening Github desktop")
@@ -354,5 +392,5 @@ while True:
         elif there_exists(['close brave', 'close brave']):
             speak("Closing brave")
             os.system('taskkill /f /im brave.exe')
-            
+
 time.sleep(3)
