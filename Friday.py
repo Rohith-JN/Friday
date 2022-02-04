@@ -1,4 +1,5 @@
 import random
+import re
 import speech_recognition as sr
 import pyttsx3
 import datetime
@@ -103,6 +104,12 @@ def sendMessage(text, chat_id):
     }
     res = requests.get(base_url, data=parameters)
 
+def getQuickAnswers(query):
+    url = "https://api.duckduckgo.com"
+    response = requests.get(url, params = {"q" : query, "format" : "json"})
+    data = response.json()
+    final = ' '.join(re.split(r'(?<=[.])\s', data['Abstract'])[:2])
+    return final
 
 def takeCommand():
     r = sr.Recognizer()
@@ -145,7 +152,7 @@ while True:
             webbrowser.open_new_tab("https://www.youtube.com")
             speak("youtube is open now")
             time.sleep(4)
-
+            
         elif "battery percentage" in response or "battery" in response or "what is the battery percentage" in response:
             speak("Current battery percentage is at" + str(percent) + "percent")
 
@@ -273,7 +280,7 @@ while True:
             speak("Restarting your pc, make sure you exit from all applications")
             subprocess.call(["shutdown", "/r"])
 
-        elif there_exists(['weather', 'whats the weather like right now', 'current temperature', 'climate']):
+        elif there_exists(['what is the weather like right now', 'current temperature', 'climate']):
             api_key = API_KEY
             base_url = "https://api.openweathermap.org/data/2.5/weather?"
             complete_url = base_url + "appid=" + api_key + "&q=" + getLocation()
@@ -306,6 +313,23 @@ while True:
             else:
                 speak("Ok boss")
 
+        elif there_exists(['what is the weather in']):
+            search_term = response.replace("what is the weather in", '')
+            api_key = API_KEY
+            base_url = "https://api.openweathermap.org/data/2.5/weather?"
+            complete_url = base_url + "appid=" + api_key + "&q=" + search_term
+            response = requests.get(complete_url)
+            x = response.json()
+            if x["cod"] != "404":
+                y = x["main"]
+                current_temperature = y["temp"]
+                z = x["weather"]
+                weather_description = z[0]["description"]
+                temperature = int(current_temperature - 273.15)
+                speak(f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}")
+            else:
+                speak(" City Not Found ")
+
         elif there_exists(['open android studio']):
             speak("Opening android studio")
             subprocess.call(
@@ -331,7 +355,7 @@ while True:
 
         elif there_exists(['close discord']):
             speak('Closing discord')
-            os.system("taskkill /f /im Update.exe")
+            os.system("taskkill /f /im Discord.exe")
 
         elif there_exists(['send a message to']):
             search_term = response.replace('send a message to', '').lower()
@@ -370,7 +394,7 @@ while True:
                 speak("Message sent successfully")
                 notification.show_toast("Personal Assistant" ,"Sent a message to Thomas in Telegram", duration=10)
 
-            elif there_exists(['mom', 'rajath']):
+            elif there_exists(['mom', 'Rajath', 'Rajat', 'rajat', 'mum']):
                 speak("What should I send?")
                 response = takeCommand()
                 asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_4))
@@ -389,8 +413,28 @@ while True:
             speak("Opening brave")
             subprocess.call('C://Program Files//BraveSoftware//Brave-Browser//Application//brave.exe')
 
-        elif there_exists(['close brave', 'close brave']):
+        elif there_exists(['close brave', 'close Brave']):
             speak("Closing brave")
             os.system('taskkill /f /im brave.exe')
 
+        elif there_exists(['close postman', 'close Postman']):
+            speak('Closing Postman')
+            os.system('taskkill /f /im Postman.exe')
+
+        elif there_exists(['open postman', 'open Postman']):
+            speak("Opening Postman")
+            subprocess.call('C://Users//ACERq//AppData//Local//Postman//Postman.exe')
+
+        elif there_exists(['close youtube music', 'close Youtube Music']):
+            speak('Closing Youtube Music')
+            os.system('taskkill /f /im chrome_proxy.exe')
+
+        elif there_exists(['open youtube music', 'open Youtube Music']):
+            speak("Opening Youtube Music")
+            subprocess.call('C://Program Files//Google//Chrome//Application//chrome_proxy.exe')
+
+        elif there_exists(['what', 'who', 'why', 'where', 'when', 'which']):
+            speak(getQuickAnswers(response))
+            print(getQuickAnswers(response))
+    
 time.sleep(3)

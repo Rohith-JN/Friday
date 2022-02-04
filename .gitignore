@@ -4,3 +4,4 @@ spotifyCreds.py
 __pycache__
 session.session
 telegramCreds.py
+GraphAPIcreds.py

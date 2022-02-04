@@ -26,4 +26,3 @@ class SaveSongs:
         print("Refreshing token")
         refreshCaller = Refresh()
         self.spotify_token = refreshCaller.refresh()
-        self.find_songs()
