@@ -125,8 +125,11 @@ def takeCommand():
             return "None"
         return response.lower()
 
+win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', duration=5)
 
-wake = "hello"
+
+wake = "Hey Friday"
+wake.lower()
 
 while True:
     print("Listening..")
@@ -364,42 +367,42 @@ while True:
                 response = takeCommand()
                 sendMessage(response, CHAT_ID_1)
                 speak("Message sent successfully")
-                notification.show_toast("Personal Assistant", "Sent a message to SD dudes in Telegram", duration=10)
+                notification.show_toast("Friday", "Sent a message to SD dudes in Telegram", duration=10)
                 
             elif there_exists(['class group', 'epic dudes']):
                 speak("What should I send?")
                 response = takeCommand()
                 sendMessage(response, CHAT_ID_2)
                 speak("Message sent successfully")
-                notification.show_toast("Personal Assistant", "Sent a message to Epic dudes in Telegram", duration=10)
+                notification.show_toast("Friday", "Sent a message to Epic dudes in Telegram", duration=10)
 
             elif there_exists(['arun', 'Arun']):
                 speak("What should I send?")
                 response = takeCommand()
                 asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_2))
                 speak("Message sent successfully")
-                notification.show_toast("Personal Assistant", "Sent a message to Arun in Telegram", duration=10)
+                notification.show_toast("Friday", "Sent a message to Arun in Telegram", duration=10)
 
             elif there_exists(['pranav', 'Pranav']):
                 speak("What should I send?")
                 response = takeCommand()
                 asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_1))
                 speak("Message sent successfully")
-                notification.show_toast("Personal Assistant", "Sent a message to Pranav in Telegram",duration=10)
+                notification.show_toast("Friday", "Sent a message to Pranav in Telegram",duration=10)
             
             elif there_exists(['thomas', 'Thomas']):
                 speak("What should I send?")
                 response = takeCommand()
                 asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_3))
                 speak("Message sent successfully")
-                notification.show_toast("Personal Assistant" ,"Sent a message to Thomas in Telegram", duration=10)
+                notification.show_toast("Friday" ,"Sent a message to Thomas in Telegram", duration=10)
 
             elif there_exists(['mom', 'Rajath', 'Rajat', 'rajat', 'mum']):
                 speak("What should I send?")
                 response = takeCommand()
                 asyncio.run(PersonalMessage().sendPersonalMessage(response, user_id_4))
                 speak("Message sent successfully")
-                notification.show_toast("Personal Assistant" ,"Sent a message to Rajath in Telegram", duration=10)
+                notification.show_toast("Friday" ,"Sent a message to Rajath in Telegram", duration=10)
 
         elif there_exists(['open github desktop', 'github desktop']):
             speak("Opening Github desktop")
