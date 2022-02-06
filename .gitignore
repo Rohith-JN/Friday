@@ -1,9 +1,7 @@
 .env
 .idea
-spotifyCreds.py
 __pycache__
 session.session
-telegramCreds.py
-GraphAPIcreds.py
 Friday.bat
 Friday.vbs
+API_creds.py
