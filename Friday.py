@@ -16,19 +16,17 @@ import pyscreenshot
 import calendar
 from dotenv import load_dotenv
 from API_methods import *
-from API_creds import user_id_1, user_id_2, user_id_3, user_id_4
+from API_creds import user_id_1, user_id_2, user_id_3, user_id_4, CHAT_ID_1, CHAT_ID_2, yfinance_api_key, wolframalphaApIKey, OpenWeather_API_Key
 import win10toast
 import asyncio
 import requests
 import wolframalpha
+import platform
 
-load_dotenv()
+if platform.system()=='Windows':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-API_KEY = os.getenv("API_KEY")
-CHAT_ID_1 = os.getenv("CHAT_ID_1")
-CHAT_ID_2 = os.getenv("CHAT_ID_2")
-wolframalphaApIKey = os.getenv("WolfFramAlpha_API_KEY")
-yfinance_api_key = os.getenv("YfinanceAPI_KEY")
+
 current_brightness = sbc.get_brightness()
 notification = win10toast.ToastNotifier()
 
@@ -39,17 +37,7 @@ def getDay():
     day = datetime.datetime.strptime(date, '%d %m %y').weekday()
     return calendar.day_name[day]
 
-def getMathematicalAnswers(question ):
-    appId = wolframalphaApIKey
-    client = wolframalpha.Client(appId)
-    res = client.query(question)
-    answer = next(res.results).text
-    return answer
 
-def there_exists(terms):
-    for term in terms:
-        if term in response:
-            return True
 
 
 engine = pyttsx3.init('sapi5')
@@ -57,6 +45,7 @@ rate = engine.getProperty("rate")
 engine.setProperty("rate", 175)
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
+
 
 # battery module commands
 battery = psutil.sensors_battery()
@@ -91,6 +80,24 @@ def note(text):
     sublime = 'C:\Program Files\Sublime Text\sublime_text.exe'
     subprocess.Popen([sublime, file_name])
 
+def getWeather():
+    api_key = OpenWeather_API_Key
+    base_url = "https://api.openweathermap.org/data/2.5/weather?"
+    complete_url = base_url + "appid=" + api_key + "&q=" + getLocation()
+    response = requests.get(complete_url)
+    x = response.json()
+    if x["cod"] != "404":
+        y = x["main"]
+        current_temperature = y["temp"]
+        z = x["weather"]
+        weather_description = z[0]["description"]
+        temperature = int(current_temperature - 273.15)
+        speak(f"Current temperature is {temperature} degree celsius with {weather_description}")
+        print(f"Current temperature is {temperature} degree celsius with {weather_description}")
+    else:
+        speak("City Not Found")
+        print("City Not Found")
+
 
 def wishMe():
     hour = datetime.datetime.now().hour
@@ -103,6 +110,26 @@ def wishMe():
     else:
         speak("Good evening Boss")
         print("Good evening Boss")
+
+def getWeatherLocation(search_term):
+    api_key = OpenWeather_API_Key
+    base_url = "https://api.openweathermap.org/data/2.5/weather?"
+    complete_url = base_url + "appid=" + api_key + "&q=" + search_term
+    response = requests.get(complete_url)
+    x = response.json()
+    if x["cod"] != "404":
+        y = x["main"]
+        current_temperature = y["temp"]
+        z = x["weather"]
+        weather_description = z[0]["description"]
+        temperature = int(current_temperature - 273.15)
+        speak(
+            f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}")
+        print(
+            f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}")
+    else:
+        speak("City Not Found")
+        print("City not found")
 
 
 def sendMessage(text, chat_id):
@@ -139,8 +166,8 @@ def getStock(search_term):
         if '-' in str(change_percent):
             state = 'fell'
         else:
-            state = 'rose'
-
+            state =  'rose'
+ 
         change_percent = round(change_percent, 2)
         change_no = round(change_no, 2)
 
@@ -155,20 +182,26 @@ def getStock(search_term):
     return f"Shares of {full_name} {state} by {change_percent} percent or {change_no} at {price} {currency}"
 
 
+
 def getQuickAnswers(query):
     url = "https://api.duckduckgo.com"
-    try:
-        response = requests.get(url, params={"q": query, "format": "json"})
-        data = response.json()
-        final = ' '.join(re.split(r'(?<=[.])\s', data['Abstract'])[:2])
-    except Exception as e:
-        speak(e)
-    return final
+    response = requests.get(url, params={"q": query, "format": "json"})
+    data = response.json()
+    final = ' '.join(re.split(r'(?<=[.])\s', data['Abstract'])[:2])
+    if final == '':
+        appId = wolframalphaApIKey
+        client = wolframalpha.Client(appId)
+        res = client.query(query)
+        answer = next(res.results).text
+        return answer
+    else:
+        return final
 
 
 def takeCommand():
     r = sr.Recognizer()
     with sr.Microphone() as source:
+        sr.Recognizer().adjust_for_ambient_noise(source, duration=0.2)
         print("Listening...")
         audio = r.listen(source)
 
@@ -184,305 +217,291 @@ def takeCommand():
 win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', duration=5)
 wishMe()
 
-WakeCommand = 'hello'
+async def main():
+    
+    def there_exists(terms):
+        for term in terms:
+            if term in response:
+                return True
 
-while True:
-    print("Listening..")
-    response = takeCommand()
+    WakeCommand = 'hello'
 
-    if response.count(WakeCommand) > 0:
-        speak("Yes boss")
+    while True:
+        print("Listening..")
         response = takeCommand()
-        
 
-        if "good bye" in response or "ok bye" in response or "stop" in response or "see you later" in response or "bye" in response or "kill program" in response or "sleep" in response:
-            res = ['See you later', 'Good bye..', 'Nice talking with you', 'Bye..']
-            speak(random.choice(res))
-            break
-
-        elif there_exists(['whats the day today', 'what day is it today', 'day']):
-            speak(f'Today is {getDay()}')
-
-        elif "how are you" in response or "how are you doing" in response:
-            speak("I'm very well, thanks for asking")
-
-        elif 'open youtube' in response:
-            speak("opening youtube")
-            webbrowser.open_new_tab("https://www.youtube.com")
-            speak("youtube is open now")
-            time.sleep(4)
-
-        elif "battery percentage" in response or "battery" in response or "what is the battery percentage" in response:
-            speak("Current battery percentage is at" + str(percent) + "percent")
-
-        elif "current brightness" in response or "what is the current brightness" in response:
-            speak(str(sbc.get_brightness()) + "percent")
-
-        elif there_exists(["current location", "location", "where am i", "where am I right now"]):
-            res = requests.get("https://ipinfo.io/")
-            data = res.json()
-            city = data["city"].split(',')
-            state = data["region"].split(',')
-            speak(f'You are in {city},{state}')
-            print(f'You are in {city},{state}')
-
-        elif there_exists(["play"]):
-            search_term = response.replace("play", '')
-            kit.playonyt(search_term)
-            speak(f"Playing {search_term}")
-
-        elif there_exists(["on youtube"]):
-            search_term = response.replace("on youtube", '')
-            url = f"https://www.youtube.com/results?search_query={search_term}"
-            webbrowser.get().open(url)
-            speak(f'Here is what I found for {search_term} on youtube')
-
-        elif there_exists(["price of"]):
-            engine.setProperty("rate", 150)
-            search_term = response.lower().split(" of ")[-1].strip()
-            ans = speak(getStock(search_term))
-            print(ans)
-            engine.setProperty("rate", 175)
-
-        elif there_exists(['take a note', 'note', 'note this down', 'remember this', 'take this down']):
-            speak("What do you want me to note down?")
+        if response.count(WakeCommand) > 0:
+            speak("Yes boss")
             response = takeCommand()
-            note(response)
-            speak("I have made a note of that")
 
-        elif "open vscode" in response or "open visual studio code" in response:
-            speak("opening visual studio code")
-            subprocess.call(
-                "C://Users//ACERq//AppData//Local//Programs//Microsoft VS Code//Code.exe")
+            if "good bye" in response or "ok bye" in response or "stop" in response or "see you later" in response or "bye" in response or "kill program" in response or "sleep" in response:
+                res = ['See you later', 'Good bye..', 'Nice talking with you', 'Bye..']
+                speak(random.choice(res))
+                break
 
-        elif "close vscode" in response or "close visual studio code" in response:
-            speak("closing visual studio code")
-            os.system("taskkill /f /im code.exe")
+            elif there_exists(['whats the day today', 'what day is it today', 'day']):
+                speak(f'Today is {getDay()}')
 
-        elif "tell me a joke" in response or "joke" in response:
-            joke = (pyjokes.get_joke())
-            speak(joke)
-            print(joke)
+            elif "how are you" in response or "how are you doing" in response:
+                speak("I'm very well, thanks for asking")
 
-        elif 'open google' in response:
-            webbrowser.open_new_tab("https://www.google.com")
-            speak("Google chrome is open now")
-            time.sleep(5)
+            elif 'open youtube' in response:
+                speak("opening youtube")
+                webbrowser.open_new_tab("https://www.youtube.com")
+                speak("youtube is open now")
+                time.sleep(4)
 
-        elif 'open gmail' in response:
-            speak("opening gmail")
-            webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
-            speak("Gmail is open now")
-            time.sleep(5)
+            elif "battery percentage" in response or "battery" in response or "what is the battery percentage" in response:
+                speak("Current battery percentage is at" + str(percent) + "percent")
 
-        elif "open a new tab in google" in response or "open new tab" in response:
-            webbrowser.open_new_tab("https://www.google.com")
-            speak("Opened new tab")
+            elif "current brightness" in response or "what is the current brightness" in response:
+                speak(str(sbc.get_brightness()) + "percent")
 
-        elif there_exists(["search for"]) and 'youtube' not in response:
-            search_term = response.split("for")[-1]
-            url = f"https://google.com/search?q={search_term}"
-            webbrowser.get().open(url)
-            speak(f'Here is what I found for {search_term} on google')
+            elif there_exists(["current location", "location", "where am i", "where am I right now"]):
+                res = requests.get("https://ipinfo.io/")
+                data = res.json()
+                city = data["city"].split(',')
+                state = data["region"].split(',')
+                speak(f'You are in {city},{state}')
+                print(f'You are in {city},{state}')
 
-        elif "close google" in response or "shutdown google" in response:
-            os.system("taskkill /f /im chrome.exe")
-            speak("Closed google")
+            elif there_exists(["play"]):
+                search_term = response.replace("play", '')
+                kit.playonyt(search_term)
+                speak(f"Playing {search_term}")
 
-        elif 'time' in response or "what is the time" in response or "what's the time" in response:
-            strTime = datetime.datetime.now().strftime("%H:%M")
-            speak(f"the time is {strTime}")
+            elif there_exists(["on youtube"]):
+                search_term = response.replace("on youtube", '')
+                url = f"https://www.youtube.com/results?search_query={search_term}"
+                webbrowser.get().open(url)
+                speak(f'Here is what I found for {search_term} on youtube')
 
-        elif 'who are you' in response or 'what can you do' in response:
-            speak('I am Friday your personal assistant. I am programmed to minor tasks like'
-                  'opening youtube, google chrome, gmail, predict time, take screenshots,'
-                  'search google chrome, predict weather etc')
+            elif there_exists(["price of"]):
+                engine.setProperty("rate", 150)
+                search_term = response.lower().split(" of ")[-1].strip()
+                stock = getStock(search_term)
+                speak(stock)
+                print(stock)
+                engine.setProperty("rate", 175)
 
-        elif "open stackoverflow" in response or "stack overflow" in response:
-            webbrowser.open_new_tab("https://stackoverflow.com/login")
-            speak("Here is stackoverflow")
+            elif there_exists(['take a note', 'note', 'note this down', 'remember this', 'take this down']):
+                speak("What do you want me to note down?")
+                response = takeCommand()
+                note(response)
+                speak("I have made a note of that")
 
-        elif "calculator" in response or 'calc' in response:
-            subprocess.call("calc.exe")
+            elif "open vscode" in response or "open visual studio code" in response:
+                speak("opening visual studio code")
+                subprocess.call(
+                    "C://Users//ACERq//AppData//Local//Programs//Microsoft VS Code//Code.exe")
 
-        elif 'search' in response:
-            response = response.replace("search", "")
-            webbrowser.open_new_tab(response)
-            time.sleep(5)
+            elif "close vscode" in response or "close visual studio code" in response:
+                speak("closing visual studio code")
+                os.system("taskkill /f /im code.exe")
 
-        elif "log off" in response or "sign out" in response or "kill switch" in response:
-            speak(
-                "Your pc will log off in 10 sec make sure you exit from all applications")
-            subprocess.call(["shutdown", "/l"])
+            elif "tell me a joke" in response or "joke" in response:
+                joke = (pyjokes.get_joke())
+                speak(joke)
+                print(joke)
 
-        elif "shutdown" in response:
-            speak("Shutting down your pc, make sure you exit from all applications")
-            subprocess.call(["shutdown", "/s"])
+            elif 'open google' in response:
+                webbrowser.open_new_tab("https://www.google.com")
+                speak("Google chrome is open now")
+                time.sleep(5)
 
-        elif "restart" in response:
-            speak("Restarting your pc, make sure you exit from all applications")
-            subprocess.call(["shutdown", "/r"])
+            elif 'open gmail' in response:
+                speak("opening gmail")
+                webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
+                speak("Gmail is open now")
+                time.sleep(5)
 
-        elif there_exists(['what is the weather like right now', 'current temperature', 'climate']):
-            api_key = API_KEY
-            base_url = "https://api.openweathermap.org/data/2.5/weather?"
-            complete_url = base_url + "appid=" + api_key + "&q=" + getLocation()
-            response = requests.get(complete_url)
-            x = response.json()
-            if x["cod"] != "404":
-                y = x["main"]
-                current_temperature = y["temp"]
-                z = x["weather"]
-                weather_description = z[0]["description"]
-                temperature = int(current_temperature - 273.15)
-                speak(f"Current temperature is {temperature} degree celsius with {weather_description}")
-            else:
-                speak(" City Not Found ")
+            elif "open a new tab in google" in response or "open new tab" in response:
+                webbrowser.open_new_tab("https://www.google.com")
+                speak("Opened new tab")
 
-        elif there_exists(['increase brightness']):
-            brightness = sbc.set_brightness(current_brightness + 10)
-            speak(f"Increased brightness by 10 percent")
+            elif there_exists(["search for"]) and 'youtube' not in response:
+                search_term = response.split("for")[-1]
+                url = f"https://google.com/search?q={search_term}"
+                webbrowser.get().open(url)
+                speak(f'Here is what I found for {search_term} on google')
 
-        elif there_exists(
-                ['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']):
-            brightness = sbc.set_brightness(current_brightness - 10)
-            speak(f"Decreased brightness by 10 percent")
+            elif "close google" in response or "shutdown google" in response:
+                os.system("taskkill /f /im chrome.exe")
+                speak("Closed google")
 
-        elif "take a screenshot" in response or "screen shot" in response:
-            image = pyscreenshot.grab()
-            speak("Should I open the image?")
-            response = takeCommand()
-            if there_exists(['yes', 'show', 'show the screenshot']):
-                image.show()
-            else:
-                speak("Ok boss")
+            elif 'time' in response or "what is the time" in response or "what's the time" in response:
+                strTime = datetime.datetime.now().strftime("%H:%M")
+                speak(f"the time is {strTime}")
 
-        elif there_exists(['what is the weather in']):
-            search_term = response.replace("what is the weather in", '')
-            api_key = API_KEY
-            base_url = "https://api.openweathermap.org/data/2.5/weather?"
-            complete_url = base_url + "appid=" + api_key + "&q=" + search_term
-            response = requests.get(complete_url)
-            x = response.json()
-            if x["cod"] != "404":
-                y = x["main"]
-                current_temperature = y["temp"]
-                z = x["weather"]
-                weather_description = z[0]["description"]
-                temperature = int(current_temperature - 273.15)
+            elif 'who are you' in response or 'what can you do' in response:
+                speak('I am Friday your personal assistant. I am programmed to minor tasks like'
+                      'opening youtube, google chrome, gmail, predict time, take screenshots,'
+                      'search google chrome, predict weather etc')
+
+            elif "open stackoverflow" in response or "stack overflow" in response:
+                webbrowser.open_new_tab("https://stackoverflow.com/login")
+                speak("Here is stackoverflow")
+
+            elif "calculator" in response or 'calc' in response:
+                subprocess.call("calc.exe")
+
+            elif 'search' in response:
+                response = response.replace("search", "")
+                webbrowser.open_new_tab(response)
+                time.sleep(5)
+
+            elif "log off" in response or "sign out" in response or "kill switch" in response:
                 speak(
-                    f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}")
-            else:
-                speak(" City Not Found ")
+                    "Your pc will log off in 10 sec make sure you exit from all applications")
+                subprocess.call(["shutdown", "/l"])
 
-        elif there_exists(['open android studio']):
-            speak("Opening android studio")
-            subprocess.call(
-                "C://Program Files//Android//Android Studio//bin//studio64.exe")
+            elif "shutdown" in response:
+                speak("Shutting down your pc, make sure you exit from all applications")
+                subprocess.call(["shutdown", "/s"])
 
-        elif there_exists(['close android studio']):
-            speak('Closing android studio')
-            os.system("taskkill /f /im studio64.exe")
+            elif "restart" in response:
+                speak("Restarting your pc, make sure you exit from all applications")
+                subprocess.call(["shutdown", "/r"])
 
-        elif there_exists(['open telegram']):
-            speak("Opening telegram")
-            subprocess.call(
-                "C://Users//ACERq//AppData//Roaming//Telegram Desktop//Telegram.exe")
+            elif there_exists(['what is the weather like right now', 'current temperature', 'climate']):
+                getWeather()
 
-        elif there_exists(['close telegram']):
-            speak('Closing telegram')
-            os.system("taskkill /f /im Telegram.exe")
+            elif there_exists(['increase brightness']):
+                brightness = sbc.set_brightness(current_brightness + 10)
+                speak(f"Increased brightness by 10 percent")
 
-        elif there_exists(['open discord']):
-            speak("Opening discord")
-            subprocess.call(
-                "C://Users//ACERq//AppData//Local//Discord//Update.exe")
+            elif there_exists(
+                    ['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']):
+                brightness = sbc.set_brightness(current_brightness - 10)
+                speak(f"Decreased brightness by 10 percent")
 
-        elif there_exists(['close discord']):
-            speak('Closing discord')
-            os.system("taskkill /f /im Discord.exe")
-
-        elif there_exists(['send a message to']):
-            search_term = response.replace('send a message to', '').lower()
-            if there_exists(['sd dudes', 'locality group']):
-                speak("What should I send?")
+            elif "take a screenshot" in response or "screen shot" in response:
+                image = pyscreenshot.grab()
+                speak("Should I open the image?")
                 response = takeCommand()
-                sendMessage(response, CHAT_ID_1)
-                speak("Message sent successfully")
-                notification.show_toast("Friday", "Sent a message to SD dudes in Telegram", duration=10)
+                if there_exists(['yes', 'show', 'show the screenshot']):
+                    image.show()
+                else:
+                    speak("Ok boss")
 
-            elif there_exists(['class group', 'epic dudes']):
-                speak("What should I send?")
-                response = takeCommand()
-                sendMessage(response, CHAT_ID_2)
-                speak("Message sent successfully")
-                notification.show_toast("Friday", "Sent a message to Epic dudes in Telegram", duration=10)
+            elif there_exists(['what is the weather in']):
+                search_term = response.replace("what is the weather in", '')
+                getWeatherLocation(search_term)
 
-            elif there_exists(['arun', 'Arun']):
-                speak("What should I send?")
-                response = takeCommand()
-                asyncio.run(Methods().sendPersonalMessage(response, user_id_2))
-                speak("Message sent successfully")
-                notification.show_toast("Friday", "Sent a message to Arun in Telegram", duration=10)
+            elif there_exists(['open android studio']):
+                speak("Opening android studio")
+                subprocess.call(
+                    "C://Program Files//Android//Android Studio//bin//studio64.exe")
 
-            elif there_exists(['pranav', 'Pranav']):
-                speak("What should I send?")
-                response = takeCommand()
-                asyncio.run(Methods().sendPersonalMessage(response, user_id_1))
-                speak("Message sent successfully")
-                notification.show_toast("Friday", "Sent a message to Pranav in Telegram", duration=10)
+            elif there_exists(['close android studio']):
+                speak('Closing android studio')
+                os.system("taskkill /f /im studio64.exe")
 
-            elif there_exists(['thomas', 'Thomas']):
-                speak("What should I send?")
-                response = takeCommand()
-                asyncio.run(Methods().sendPersonalMessage(response, user_id_3))
-                speak("Message sent successfully")
-                notification.show_toast("Friday", "Sent a message to Thomas in Telegram", duration=10)
+            elif there_exists(['open telegram']):
+                speak("Opening telegram")
+                subprocess.call(
+                    "C://Users//ACERq//AppData//Roaming//Telegram Desktop//Telegram.exe")
 
-            elif there_exists(['mom', 'Rajath', 'Rajat', 'rajat', 'mum']):
-                speak("What should I send?")
-                response = takeCommand()
-                asyncio.run(Methods().sendPersonalMessage(response, user_id_4))
-                speak("Message sent successfully")
-                notification.show_toast("Friday", "Sent a message to Rajath in Telegram", duration=10)
+            elif there_exists(['close telegram']):
+                speak('Closing telegram')
+                os.system("taskkill /f /im Telegram.exe")
 
-        elif there_exists(['open github desktop', 'github desktop']):
-            speak("Opening Github desktop")
-            subprocess.call('C://Users//ACERq//AppData//Local//GitHubDesktop//GithubDesktop.exe')
+            elif there_exists(['open discord']):
+                speak("Opening discord")
+                subprocess.call(
+                    "C://Users//ACERq//AppData//Local//Discord//Update.exe")
 
-        elif there_exists(['close github', 'close github desktop']):
-            speak("Closing Github desktop")
-            os.system('taskkill /f /im GithubDesktop.exe')
+            elif there_exists(['close discord']):
+                speak('Closing discord')
+                os.system("taskkill /f /im Discord.exe")
 
-        elif there_exists(['open brave', 'brave']):
-            speak("Opening brave")
-            subprocess.call('C://Program Files//BraveSoftware//Brave-Browser//Application//brave.exe')
+            elif there_exists(['send a message to']):
+                search_term = response.replace('send a message to', '').lower()
 
-        elif there_exists(['close brave', 'close Brave']):
-            speak("Closing brave")
-            os.system('taskkill /f /im brave.exe')
+                if there_exists(['SD dudes', 'sd', 'sd dudes']):
+                    speak("What should I send")
+                    response = takeCommand()
+                    await Methods().sendGroupMessage(CHAT_ID_1, response)
+                    speak("Message sent successfully")
+                    print("Message sent successfully")
+                    notification.show_toast("Friday", "Sent a message to SD dudes in Telegram", duration=10)
 
-        elif there_exists(['close postman', 'close Postman']):
-            speak('Closing Postman')
-            os.system('taskkill /f /im Postman.exe')
+                elif there_exists(['Epic group', 'epic', 'epic dudes']):
+                    speak("What should I send")
+                    response = takeCommand()
+                    await Methods().sendGroupMessage(CHAT_ID_2, response)
+                    speak("Message sent successfully")
+                    print("Message sent successfully")
+                    notification.show_toast("Friday", "Sent a message to Epic dudes in Telegram", duration=10)
 
-        elif there_exists(['open postman', 'open Postman']):
-            speak("Opening Postman")
-            subprocess.call('C://Users//ACERq//AppData//Local//Postman//Postman.exe')
+                elif there_exists(['arun', 'Arun']):
+                    speak("What should I send?")
+                    response = takeCommand()
+                    await Methods().sendPersonalMessage(response, user_id_2)
+                    speak("Message sent successfully")
+                    print("Message sent successfully")
+                    notification.show_toast("Friday", "Sent a message to Arun in Telegram", duration=10)
 
-        elif there_exists(['close youtube music', 'close Youtube Music']):
-            speak('Closing Youtube Music')
-            os.system('taskkill /f /im chrome_proxy.exe')
+                elif there_exists(['pranav', 'Pranav']):
+                    speak("What should I send?")
+                    response = takeCommand()
+                    await Methods().sendPersonalMessage(response, user_id_1)
+                    speak("Message sent successfully")
+                    print("Message sent successfully")
+                    notification.show_toast("Friday", "Sent a message to Pranav in Telegram", duration=10)
 
-        elif there_exists(['open youtube music', 'open Youtube Music']):
-            speak("Opening Youtube Music")
-            subprocess.call('C://Program Files//Google//Chrome//Application//chrome_proxy.exe')
+                elif there_exists(['thomas', 'Thomas']):
+                    speak("What should I send?")
+                    response = takeCommand()
+                    await Methods().sendPersonalMessage(response, user_id_3)
+                    speak("Message sent successfully")
+                    print("Message sent successfully")
+                    notification.show_toast("Friday", "Sent a message to Thomas in Telegram", duration=10)
 
-        elif there_exists(['what', 'who', 'why', 'where', 'when', 'which']):
-            speak(getQuickAnswers(response))
-            print(getQuickAnswers(response))
+                elif there_exists(['mom', 'Rajath', 'Rajat', 'rajat', 'mum']):
+                    speak("What should I send?")
+                    response = takeCommand()
+                    await Methods().sendPersonalMessage(response, user_id_4)
+                    speak("Message sent successfully")
+                    print("Message sent successfully")
+                    notification.show_toast("Friday", "Sent a message to Rajath in Telegram", duration=10)
 
-        elif there_exists(['what']):
-            ans = speak(f'The answer is {getMathematicalAnswers(response)}')
+            elif there_exists(['open github desktop', 'github desktop']):
+                speak("Opening Github desktop")
+                subprocess.call('C://Users//ACERq//AppData//Local//GitHubDesktop//GithubDesktop.exe')
 
+            elif there_exists(['close github', 'close github desktop']):
+                speak("Closing Github desktop")
+                os.system('taskkill /f /im GithubDesktop.exe')
+
+            elif there_exists(['open brave', 'brave']):
+                speak("Opening brave")
+                subprocess.call('C://Program Files//BraveSoftware//Brave-Browser//Application//brave.exe')
+
+            elif there_exists(['close brave', 'close Brave']):
+                speak("Closing brave")
+                os.system('taskkill /f /im brave.exe')
+
+            elif there_exists(['close postman', 'close Postman']):
+                speak('Closing Postman')
+                os.system('taskkill /f /im Postman.exe')
+
+            elif there_exists(['open postman', 'open Postman']):
+                speak("Opening Postman")
+                subprocess.call('C://Users//ACERq//AppData//Local//Postman//Postman.exe')
+
+            elif there_exists(['close youtube music', 'close Youtube Music']):
+                speak('Closing Youtube Music')
+                os.system('taskkill /f /im chrome_proxy.exe')
+
+            elif there_exists(['open youtube music', 'open Youtube Music']):
+                speak("Opening Youtube Music")
+                subprocess.call('C://Program Files//Google//Chrome//Application//chrome_proxy.exe')
+
+            elif there_exists(['what', 'who', 'why', 'where', 'when', 'which']):
+                ans = getQuickAnswers(response)
+                speak(ans)
+                print(ans)
+
+asyncio.run(main())
 time.sleep(3)

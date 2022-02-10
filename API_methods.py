@@ -1,8 +1,8 @@
+import asyncio
 from API_creds import *
 import requests
-from telethon.tl.types import InputPeerUser
-from telethon import TelegramClient
-
+from telethon.tl.types import InputPeerUser, InputPeerChat
+from telethon import TelegramClient, functions, types
 
 class Methods:
 
@@ -31,7 +31,7 @@ class Methods:
                                  headers={"Content-Type": "application/x-www-form-urlencoded"})
 
         response_json = response.json()
-        return response_json['access_token']
+        self.access_token = response_json['access_token']
 
     def getTodoLists(self):
         query = "https://graph.microsoft.com/v1.0/me/todo/lists"
@@ -44,15 +44,10 @@ class Methods:
         print(response)
         print(response_json)
 
-    def refresh(self):
-        print("Refreshing token")
-        refreshCaller = Methods()
-        self.access_token = refreshCaller.refresh()
-
     async def sendPersonalMessage(self, message, user_id):
         client = TelegramClient('session', api_id, api_hash)
         await client.connect()
-        if not client.is_user_authorized():
+        if not await client.is_user_authorized():
             await client.send_code_request(phone)
             await client.sign_in(phone, input('Enter the code: '))
         try:
@@ -60,7 +55,16 @@ class Methods:
             await client.send_message(receiver, message, parse_mode='html')
         except Exception as e:
             print(e)
-        client.disconnect()
+        await client.disconnect()
 
-
-    
+    async def sendGroupMessage(self, entity,message):
+        client = TelegramClient('session', api_id, api_hash)
+        await client.connect()
+        if not await client.is_user_authorized():
+            await client.send_code_request(phone)
+            await client.sign_in(phone, input('Enter the code: '))
+        try:
+            await client.send_message(entity=entity, message=message)
+        except Exception as e:
+            print(e)
+        await client.disconnect()
