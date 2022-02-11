@@ -14,7 +14,6 @@ import screen_brightness_control as sbc
 import pyjokes
 import pyscreenshot
 import calendar
-from dotenv import load_dotenv
 from API_methods import *
 from API_creds import user_id_1, user_id_2, user_id_3, user_id_4, CHAT_ID_1, CHAT_ID_2, yfinance_api_key, wolframalphaApIKey, OpenWeather_API_Key
 import win10toast
@@ -22,6 +21,9 @@ import asyncio
 import requests
 import wolframalpha
 import platform
+import keyboard
+import pyautogui
+
 
 if platform.system()=='Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -36,8 +38,6 @@ def getDay():
     date = today.strftime("%d %m %y")
     day = datetime.datetime.strptime(date, '%d %m %y').weekday()
     return calendar.day_name[day]
-
-
 
 
 engine = pyttsx3.init('sapi5')
@@ -265,6 +265,20 @@ async def main():
                 speak(f'You are in {city},{state}')
                 print(f'You are in {city},{state}')
 
+            elif there_exists(['increase volume', 'volume up']):
+                for i in range(3):
+                    pyautogui.press('volumeup')
+
+            elif there_exists(['decrease volume', 'volume down']):
+                for i in range(3):
+                    pyautogui.press('volumedown')
+
+            elif there_exists(['next track', 'next song']):
+                pyautogui.press('nexttrack')
+
+            elif there_exists(['previous track', 'previous song']):
+                pyautogui.press('prevtrack')
+
             elif there_exists(["play"]):
                 search_term = response.replace("play", '')
                 kit.playonyt(search_term)
@@ -328,6 +342,9 @@ async def main():
             elif "close google" in response or "shutdown google" in response:
                 os.system("taskkill /f /im chrome.exe")
                 speak("Closed google")
+
+            elif there_exists(["close current tab", 'close tab']):
+                keyboard.press_and_release('ctrl+w') 
 
             elif 'time' in response or "what is the time" in response or "what's the time" in response:
                 strTime = datetime.datetime.now().strftime("%H:%M")
