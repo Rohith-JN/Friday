@@ -1,0 +1,12 @@
+{"intents": [
+    {
+        "tag": "welcome",
+        "patterns": ["hello", "hi", "how are you doing", "what's up?", "how is it going", "hey", "hey Friday"],
+        "responses" : ["Hello!", "Hey!", "What can I do for you?", "How can I help"]
+    },
+    {
+        "tag": "Bye",
+        "patterns": ["Ok bye", "good bye", "see you later", "see you afterwards", "sleep", "go to sleep", "bye", "kill program"],
+        "responses": ["See you later!", "Good bye!", "Nice talking with you...", "Bye.."]
+    }
+]}

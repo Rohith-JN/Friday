@@ -7,7 +7,6 @@ import yfinance as yf
 import pywhatkit as kit
 import webbrowser
 import psutil
-import os
 import time
 import subprocess
 import screen_brightness_control as sbc
@@ -15,7 +14,7 @@ import pyjokes
 import pyscreenshot
 import calendar
 from API_methods import *
-from API_creds import user_id_1, user_id_2, user_id_3, user_id_4, CHAT_ID_1, CHAT_ID_2, yfinance_api_key, wolframalphaApIKey, OpenWeather_API_Key
+from API_creds import *
 import win10toast
 import asyncio
 import requests
@@ -131,16 +130,6 @@ def getWeatherLocation(search_term):
         speak("City Not Found")
         print("City not found")
 
-
-def sendMessage(text, chat_id):
-    base_url = "https://api.telegram.org/bot5272158533:AAHheD5P17Oyr4eHv3RdRZYF-5m9oP1bkxY/sendMessage"
-    parameters = {
-        "chat_id": chat_id,
-        "text": text
-    }
-    res = requests.get(base_url, data=parameters)
-
-
 def getStock(search_term):
     global full_name, change_percent, change_no, state, price, currency
     results = []
@@ -182,7 +171,6 @@ def getStock(search_term):
     return f"Shares of {full_name} {state} by {change_percent} percent or {change_no} at {price} {currency}"
 
 
-
 def getQuickAnswers(query):
     url = "https://api.duckduckgo.com"
     response = requests.get(url, params={"q": query, "format": "json"})
@@ -214,6 +202,28 @@ def takeCommand():
         return response.lower()
 
 
+def close_app(app_name):
+    running_apps=psutil.process_iter(['pid','name'])
+    found=False
+    for app in running_apps:
+        sys_app=app.info.get('name').split('.')[0].lower()
+
+        if sys_app in app_name.split() or app_name in sys_app:
+            pid=app.info.get('pid')
+            
+            try:
+                app_pid = psutil.Process(pid)
+                app_pid.terminate()
+                found=True
+            except: pass
+            
+        else: pass
+    if not found:
+        speak(app_name + " is not running")
+    else:
+        speak('Closed ' + app_name)
+
+
 win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', duration=5)
 wishMe()
 
@@ -238,6 +248,10 @@ async def main():
                 res = ['See you later', 'Good bye..', 'Nice talking with you', 'Bye..']
                 speak(random.choice(res))
                 break
+
+            elif there_exists(['close']):
+                search_term = response.replace('close', '')
+                close_app(search_term)
 
             elif there_exists(['whats the day today', 'what day is it today', 'day']):
                 speak(f'Today is {getDay()}')
@@ -273,12 +287,6 @@ async def main():
                 for i in range(3):
                     pyautogui.press('volumedown')
 
-            elif there_exists(['next track', 'next song']):
-                pyautogui.press('nexttrack')
-
-            elif there_exists(['previous track', 'previous song']):
-                pyautogui.press('prevtrack')
-
             elif there_exists(["play"]):
                 search_term = response.replace("play", '')
                 kit.playonyt(search_term)
@@ -309,10 +317,6 @@ async def main():
                 subprocess.call(
                     "C://Users//ACERq//AppData//Local//Programs//Microsoft VS Code//Code.exe")
 
-            elif "close vscode" in response or "close visual studio code" in response:
-                speak("closing visual studio code")
-                os.system("taskkill /f /im code.exe")
-
             elif "tell me a joke" in response or "joke" in response:
                 joke = (pyjokes.get_joke())
                 speak(joke)
@@ -339,21 +343,12 @@ async def main():
                 webbrowser.get().open(url)
                 speak(f'Here is what I found for {search_term} on google')
 
-            elif "close google" in response or "shutdown google" in response:
-                os.system("taskkill /f /im chrome.exe")
-                speak("Closed google")
-
             elif there_exists(["close current tab", 'close tab']):
                 keyboard.press_and_release('ctrl+w') 
 
             elif 'time' in response or "what is the time" in response or "what's the time" in response:
                 strTime = datetime.datetime.now().strftime("%H:%M")
                 speak(f"the time is {strTime}")
-
-            elif 'who are you' in response or 'what can you do' in response:
-                speak('I am Friday your personal assistant. I am programmed to minor tasks like'
-                      'opening youtube, google chrome, gmail, predict time, take screenshots,'
-                      'search google chrome, predict weather etc')
 
             elif "open stackoverflow" in response or "stack overflow" in response:
                 webbrowser.open_new_tab("https://stackoverflow.com/login")
@@ -410,27 +405,15 @@ async def main():
                 subprocess.call(
                     "C://Program Files//Android//Android Studio//bin//studio64.exe")
 
-            elif there_exists(['close android studio']):
-                speak('Closing android studio')
-                os.system("taskkill /f /im studio64.exe")
-
             elif there_exists(['open telegram']):
                 speak("Opening telegram")
                 subprocess.call(
                     "C://Users//ACERq//AppData//Roaming//Telegram Desktop//Telegram.exe")
 
-            elif there_exists(['close telegram']):
-                speak('Closing telegram')
-                os.system("taskkill /f /im Telegram.exe")
-
             elif there_exists(['open discord']):
                 speak("Opening discord")
                 subprocess.call(
                     "C://Users//ACERq//AppData//Local//Discord//Update.exe")
-
-            elif there_exists(['close discord']):
-                speak('Closing discord')
-                os.system("taskkill /f /im Discord.exe")
 
             elif there_exists(['send a message to']):
                 search_term = response.replace('send a message to', '').lower()
@@ -487,29 +470,13 @@ async def main():
                 speak("Opening Github desktop")
                 subprocess.call('C://Users//ACERq//AppData//Local//GitHubDesktop//GithubDesktop.exe')
 
-            elif there_exists(['close github', 'close github desktop']):
-                speak("Closing Github desktop")
-                os.system('taskkill /f /im GithubDesktop.exe')
-
             elif there_exists(['open brave', 'brave']):
                 speak("Opening brave")
                 subprocess.call('C://Program Files//BraveSoftware//Brave-Browser//Application//brave.exe')
 
-            elif there_exists(['close brave', 'close Brave']):
-                speak("Closing brave")
-                os.system('taskkill /f /im brave.exe')
-
-            elif there_exists(['close postman', 'close Postman']):
-                speak('Closing Postman')
-                os.system('taskkill /f /im Postman.exe')
-
             elif there_exists(['open postman', 'open Postman']):
                 speak("Opening Postman")
                 subprocess.call('C://Users//ACERq//AppData//Local//Postman//Postman.exe')
-
-            elif there_exists(['close youtube music', 'close Youtube Music']):
-                speak('Closing Youtube Music')
-                os.system('taskkill /f /im chrome_proxy.exe')
 
             elif there_exists(['open youtube music', 'open Youtube Music']):
                 speak("Opening Youtube Music")
