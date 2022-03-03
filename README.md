@@ -3,18 +3,16 @@
 
 ## Features
 
-1. Open and close apps
 2. Answer different type of questions
 3. Send messages to groups and personal chat in telegram
 4. Get stock prices
-5. Access native windows controls like brightness, volume, playback state, shutdown, sleep and restart
+5. Access native windows controls like brightness, volume, shutdown, sleep and restart
 6. Etc
 
 # Technologies Used
 
 1. Python
 2. Telegram API
-3. Microsoft Graph API
 4. Yahoo finance API
 5. Wolframalpha API
 

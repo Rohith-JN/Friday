@@ -1,8 +1,6 @@
-import asyncio
 from API_creds import *
-import requests
-from telethon.tl.types import InputPeerUser, InputPeerChat
-from telethon import TelegramClient, functions, types
+from telethon.tl.types import InputPeerUser
+from telethon import TelegramClient
 
 class Methods:
 
@@ -12,37 +10,7 @@ class Methods:
         self.token = token,
         self.user_id_1 = user_id_1,
         self.phone = phone
-        self.refresh_token = refresh_token
-        self.scope = scope
-        self.client_secret = client_secret
-        self.client_id = client_id,
-        self.refresh_token = refresh_token,
         self.access_token = ''
-
-    def refresh(self):
-        query = "https://login.microsoftonline.com/{}/oauth2/token".format(tenant_id)
-        response = requests.post(query,
-                                 data={"client_id": client_id,
-                                       "refresh_token": refresh_token,
-                                       "redirect_uri": 'https://github.com',
-                                       "grant_type": "refresh_token",
-                                       "client_secret": client_secret
-                                       },
-                                 headers={"Content-Type": "application/x-www-form-urlencoded"})
-
-        response_json = response.json()
-        self.access_token = response_json['access_token']
-
-    def getTodoLists(self):
-        query = "https://graph.microsoft.com/v1.0/me/todo/lists"
-        response = requests.get(query,
-                                headers={
-                                    "content-type": "application/json",
-                                    "Authorization": "Bearer {}".format(self.access_token)},
-                                )
-        response_json = response.json()
-        print(response)
-        print(response_json)
 
     async def sendPersonalMessage(self, message, user_id):
         client = TelegramClient('session', api_id, api_hash)
