@@ -7,7 +7,7 @@
 3. Send messages to groups and personal chat in telegram
 4. Get stock prices
 5. Access native windows controls like brightness, volume, shutdown, sleep and restart
-6. Etc
+6. 
 
 # Technologies Used
 
@@ -19,7 +19,6 @@
 # Upcoming features
 
 1. Integration of Discord API
-2. Intelligent responses
 
 ## Meta
 

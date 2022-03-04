@@ -9,15 +9,14 @@ import subprocess
 import screen_brightness_control as sbc
 import pyjokes
 import pyscreenshot
-from API_methods import *
-from API_creds import *
 import win10toast
 import asyncio
-import requests
 import platform
 import keyboard
 import pyautogui
 from Friday_Functions import *
+from API_methods import *
+from API_creds import *
 
 
 if platform.system()=='Windows':
@@ -37,6 +36,7 @@ win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', durat
 speak(wishMe())
 print(wishMe())
 
+
 async def main():
     
     def there_exists(terms):
@@ -44,7 +44,7 @@ async def main():
             if term in response:
                 return True
 
-    WakeCommand = 'hello'
+    WakeCommand = 'Hey Friday'
 
     while True:
         print("Listening..")
@@ -64,11 +64,28 @@ async def main():
                 status = close_app(search_term)
                 speak(status)
 
+            elif 'open google' in response:
+                webbrowser.open_new_tab("https://www.google.com")
+                speak("Google chrome is open now")
+                time.sleep(5)
+
+            elif 'open gmail' in response:
+                speak("opening gmail")
+                webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
+                speak("Gmail is open now")
+                time.sleep(5)
+
+            elif "open a new tab in google" in response or "open new tab" in response:
+                webbrowser.open_new_tab("https://www.google.com")
+                speak("Opened new tab")
+
+            elif there_exists(['open']):
+                search_term = response.replace('open', '')
+                search_term = "".join(search_term.split())
+                open_app(search_term)
+
             elif there_exists(['whats the day today', 'what day is it today', 'day']):
                 speak(f'Today is {getDay()}')
-
-            elif "how are you" in response or "how are you doing" in response:
-                speak("I'm very well, thanks for asking")
 
             elif 'open youtube' in response:
                 openYoutube()
@@ -78,6 +95,8 @@ async def main():
 
             elif "current brightness" in response or "what is the current brightness" in response:
                 speak(str(sbc.get_brightness()) + "percent")
+                if sbc.get_brightness() == 100:
+                    speak("Brightness is already at max")
 
             elif there_exists(["current location", "location", "where am i", "where am I right now"]):
                 location()
@@ -120,21 +139,6 @@ async def main():
                 speak(joke)
                 print(joke)
 
-            elif 'open google' in response:
-                webbrowser.open_new_tab("https://www.google.com")
-                speak("Google chrome is open now")
-                time.sleep(5)
-
-            elif 'open gmail' in response:
-                speak("opening gmail")
-                webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
-                speak("Gmail is open now")
-                time.sleep(5)
-
-            elif "open a new tab in google" in response or "open new tab" in response:
-                webbrowser.open_new_tab("https://www.google.com")
-                speak("Opened new tab")
-
             elif there_exists(["search for"]) and 'youtube' not in response:
                 search_term = response.split("for")[-1]
                 url = f"https://google.com/search?q={search_term}"
@@ -147,10 +151,6 @@ async def main():
             elif 'time' in response or "what is the time" in response or "what's the time" in response:
                 strTime = datetime.datetime.now().strftime("%H:%M")
                 speak(f"the time is {strTime}")
-
-            elif "open stackoverflow" in response or "stack overflow" in response:
-                webbrowser.open_new_tab("https://stackoverflow.com/login")
-                speak("Here is stackoverflow")
 
             elif "calculator" in response or 'calc' in response:
                 subprocess.call("calc.exe")

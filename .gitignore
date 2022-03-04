@@ -1,7 +1,7 @@
-.idea
 __pycache__
 session.session
 Friday.bat
 Friday.vbs
 API_creds.py
 .venv
+paths.py

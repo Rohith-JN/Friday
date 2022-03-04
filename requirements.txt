@@ -1,3 +1,4 @@
+pipwin
 winspeech
 SpeechRecognition
 pyttsx3
@@ -18,4 +19,4 @@ telethon
 numpy
 nltk
 keras
-tensorflow
+flask

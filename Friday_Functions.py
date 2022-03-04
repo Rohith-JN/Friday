@@ -2,8 +2,9 @@
 
 import calendar
 import datetime
+from difflib import SequenceMatcher
+import os
 import subprocess
-import time
 import webbrowser
 import psutil
 import requests
@@ -15,6 +16,8 @@ import re
 import wolframalpha
 import speech_recognition as sr
 import pyttsx3
+from paths import paths
+
 
 engine = pyttsx3.init('sapi5')
 rate = engine.getProperty("rate")
@@ -207,6 +210,41 @@ def close_app(app_name):
     else:
         return 'Closed ' + app_name
 
+#open-app
+def checkIfProcessRunning(processName):
+    running_apps=psutil.process_iter(['pid','name'])
+    found=False
+    for app in running_apps:
+        sys_app=app.info.get('name').split('.')[0].lower()
+
+        if sys_app in processName.split() or processName in sys_app:
+            pid=app.info.get('pid')
+            
+            try:
+                app_pid = psutil.Process(pid)
+                found=True
+            except: pass
+            
+        else: pass
+    if not found:
+        return False
+    else:
+        return True
+
+def open_app(name):
+    for app_name in paths:
+        for app in app_name:
+            s = SequenceMatcher(None, app, name)
+            if s.ratio() > 0.6 and checkIfProcessRunning(app) == True:
+                return speak(f'{name} is already running')
+            
+            elif s.ratio() > 0.6 and checkIfProcessRunning(app) == False:
+                speak(f"Opening {app}")
+                return os.startfile(paths.get(app_name))
+            
+    else:
+        speak(f'You do not have an app named {name}')
+
 
 #send-user-message
 async def sendUserMessage(user_id, username):
@@ -232,8 +270,6 @@ async def sendGroupMessage(chat_id, chatname):
 def openYoutube():
     speak("opening youtube")
     webbrowser.open_new_tab("https://www.youtube.com")
-    speak("youtube is open now")
-    time.sleep(4)
 
 #get-current-location
 def location():
@@ -243,3 +279,4 @@ def location():
     state = data["region"].split(',')
     speak(f'You are in {city},{state}')
     print(f'You are in {city},{state}')
+
