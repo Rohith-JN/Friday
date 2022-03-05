@@ -2,7 +2,6 @@
 
 import calendar
 import datetime
-from difflib import SequenceMatcher
 import os
 import subprocess
 import webbrowser
@@ -10,12 +9,14 @@ import psutil
 import requests
 import win10toast
 import yfinance
-from API_methods import *
-from API_creds import *
 import re
 import wolframalpha
 import speech_recognition as sr
 import pyttsx3
+from paths import paths
+from difflib import SequenceMatcher
+from API_methods import *
+from API_creds import *
 from paths import paths
 
 
@@ -78,7 +79,7 @@ def note(text):
     with open(file_name, "w") as f:
         f.write(text)
 
-    sublime = 'C:\Program Files\Sublime Text\sublime_text.exe'
+    sublime = paths.get(sublime)
     subprocess.Popen([sublime, file_name])
 
 
@@ -221,7 +222,6 @@ def checkIfProcessRunning(processName):
             pid=app.info.get('pid')
             
             try:
-                app_pid = psutil.Process(pid)
                 found=True
             except: pass
             

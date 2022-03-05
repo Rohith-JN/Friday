@@ -1,5 +1,8 @@
+from email.message import Message
+import json
 import random
 import datetime
+import sys
 import yfinance as yf
 import pywhatkit as kit
 import webbrowser
@@ -17,6 +20,8 @@ import pyautogui
 from Friday_Functions import *
 from API_methods import *
 from API_creds import *
+from difflib import SequenceMatcher
+
 
 
 if platform.system()=='Windows':
@@ -36,6 +41,7 @@ win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', durat
 speak(wishMe())
 print(wishMe())
 
+intents = json.load(open('intents.json'))
 
 async def main():
     
@@ -44,7 +50,7 @@ async def main():
             if term in response:
                 return True
 
-    WakeCommand = 'Hey Friday'
+    WakeCommand = 'hello'
 
     while True:
         print("Listening..")
@@ -54,11 +60,36 @@ async def main():
             speak("Yes boss")
             response = takeCommand()
 
-            if "good bye" in response or "ok bye" in response or "stop" in response or "see you later" in response or "bye" in response or "kill program" in response or "sleep" in response:
-                res = ['See you later', 'Good bye..', 'Nice talking with you', 'Bye..']
-                speak(random.choice(res))
-                break
+            for pattern in intents['Bye']['patterns']:
+                responses = []
+                if SequenceMatcher(None, pattern, response).ratio() > 0.6:
+                    for response in intents['Bye']['responses']:
+                        responses.append(response)
+                    break
+            if len(responses) > 0:
+                message = random.choice(responses)
+                speak(message)
+                print(message)
+                sys.exit(0)
+            else:
+                pass
 
+            for pattern in intents['Greet']['patterns']:
+                responses = []
+                if SequenceMatcher(None, pattern, response).ratio() > 0.6:
+                    for response in intents['Greet']['responses']:
+                        responses.append(response)
+                    break
+            if len(responses) > 0:
+                message = random.choice(responses)
+                speak(message)
+                print(message)
+            else:
+                pass
+            
+            if there_exists(["close current tab", 'close tab']):
+                keyboard.press_and_release('ctrl+w') 
+            
             elif there_exists(['close']):
                 search_term = response.replace('close', '')
                 status = close_app(search_term)
@@ -94,9 +125,10 @@ async def main():
                 speak("Current battery percentage is at" + str(percent) + "percent")
 
             elif "current brightness" in response or "what is the current brightness" in response:
-                speak(str(sbc.get_brightness()) + "percent")
                 if sbc.get_brightness() == 100:
                     speak("Brightness is already at max")
+                else:
+                    speak(str(sbc.get_brightness()) + "percent")
 
             elif there_exists(["current location", "location", "where am i", "where am I right now"]):
                 location()
@@ -144,9 +176,6 @@ async def main():
                 url = f"https://google.com/search?q={search_term}"
                 webbrowser.get().open(url)
                 speak(f'Here is what I found for {search_term} on google')
-
-            elif there_exists(["close current tab", 'close tab']):
-                keyboard.press_and_release('ctrl+w') 
 
             elif 'time' in response or "what is the time" in response or "what's the time" in response:
                 strTime = datetime.datetime.now().strftime("%H:%M")

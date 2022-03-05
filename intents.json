@@ -1,0 +1,10 @@
+{
+    "Bye": {
+        "patterns": ["Good bye", "see you later", "later", "bye", "sleep", "stop", "kill program", "go to sleep"],
+        "responses": ["Nice talking with you", "See you later", "Good bye...", "Have a good day"]
+    },
+    "Greet": {
+        "patterns": ["How are you?", "How do you do", "Are you fine", "how is life"],
+        "responses": ["I am fine, Thanks for asking", "I am pretty good, thanks", "I feel good, thanks for asking"]
+    }
+}
