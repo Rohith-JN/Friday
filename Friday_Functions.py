@@ -17,7 +17,6 @@ from paths import paths
 from difflib import SequenceMatcher
 from API_methods import *
 from API_creds import *
-from paths import paths
 
 
 engine = pyttsx3.init('sapi5')

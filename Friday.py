@@ -1,9 +1,6 @@
-from email.message import Message
 import json
 import random
 import datetime
-import sys
-import yfinance as yf
 import pywhatkit as kit
 import webbrowser
 import psutil
@@ -20,9 +17,11 @@ import pyautogui
 from Friday_Functions import *
 from API_methods import *
 from API_creds import *
-from difflib import SequenceMatcher
+import torch
+from Model import NeuralNet
+from NLTK import bag_of_words, tokenize
 
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 if platform.system()=='Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -41,7 +40,23 @@ win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', durat
 speak(wishMe())
 print(wishMe())
 
-intents = json.load(open('intents.json'))
+with open('intents.json', 'r') as json_data:
+    intents = json.load(json_data)
+
+FILE = "data.pth"
+data = torch.load(FILE)
+
+input_size = data["input_size"]
+hidden_size = data["hidden_size"]
+output_size = data["output_size"]
+all_words = data['all_words']
+tags = data['tags']
+model_state = data["model_state"]
+
+model = NeuralNet(input_size, hidden_size, output_size).to(device)
+model.load_state_dict(model_state)
+model.eval()
+
 
 async def main():
     
@@ -50,7 +65,7 @@ async def main():
             if term in response:
                 return True
 
-    WakeCommand = 'hello'
+    WakeCommand = 'Hey Friday'
 
     while True:
         print("Listening..")
@@ -60,33 +75,25 @@ async def main():
             speak("Yes boss")
             response = takeCommand()
 
-            for pattern in intents['Bye']['patterns']:
-                responses = []
-                if SequenceMatcher(None, pattern, response).ratio() > 0.6:
-                    for response in intents['Bye']['responses']:
-                        responses.append(response)
-                    break
-            if len(responses) > 0:
-                message = random.choice(responses)
-                speak(message)
-                print(message)
-                sys.exit(0)
+            sentence = tokenize(response)
+            X = bag_of_words(sentence, all_words)
+            X = X.reshape(1, X.shape[0])
+            X = torch.from_numpy(X).to(device)
+        
+            output = model(X)
+            _, predicted = torch.max(output, dim=1)
+        
+            tag = tags[predicted.item()]
+        
+            probs = torch.softmax(output, dim=1)
+            prob = probs[0][predicted.item()]
+            if prob.item() > 0.75:
+                for intent in intents['intents']:
+                    if tag == intent["tag"]:
+                        speak(f"{random.choice(intent['responses'])}")
             else:
                 pass
 
-            for pattern in intents['Greet']['patterns']:
-                responses = []
-                if SequenceMatcher(None, pattern, response).ratio() > 0.6:
-                    for response in intents['Greet']['responses']:
-                        responses.append(response)
-                    break
-            if len(responses) > 0:
-                message = random.choice(responses)
-                speak(message)
-                print(message)
-            else:
-                pass
-            
             if there_exists(["close current tab", 'close tab']):
                 keyboard.press_and_release('ctrl+w') 
             
