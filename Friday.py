@@ -1,6 +1,7 @@
 import json
 import random
 import datetime
+import sys
 import pywhatkit as kit
 import webbrowser
 import psutil
@@ -91,6 +92,7 @@ async def main():
                 for intent in intents['intents']:
                     if tag == intent["tag"]:
                         speak(f"{random.choice(intent['responses'])}")
+            
             else:
                 pass
 
@@ -102,20 +104,16 @@ async def main():
                 status = close_app(search_term)
                 speak(status)
 
-            elif 'open google' in response:
+            elif there_exists(['open google', 'open new tab in google', 'new tab in google']):
                 webbrowser.open_new_tab("https://www.google.com")
                 speak("Google chrome is open now")
                 time.sleep(5)
 
-            elif 'open gmail' in response:
+            elif there_exists(['open gmail', 'gmail']):
                 speak("opening gmail")
                 webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
                 speak("Gmail is open now")
                 time.sleep(5)
-
-            elif "open a new tab in google" in response or "open new tab" in response:
-                webbrowser.open_new_tab("https://www.google.com")
-                speak("Opened new tab")
 
             elif there_exists(['open']):
                 search_term = response.replace('open', '')
@@ -159,7 +157,7 @@ async def main():
                 webbrowser.get().open(url)
                 speak(f'Here is what I found for {search_term} on youtube')
 
-            elif there_exists(["price of"]):
+            elif there_exists(["price of", "what is the price of", "tell me the price of"]):
                 engine.setProperty("rate", 150)
                 search_term = response.lower().split(" of ")[-1].strip()
                 stock = getStock(search_term)
@@ -173,7 +171,7 @@ async def main():
                 note(response)
                 speak("I have made a note of that")
 
-            elif "tell me a joke" in response or "joke" in response:
+            elif there_exists(['tell me a joke', 'not funny', 'make me laugh', 'joke', 'tell me another joke']):
                 joke = (pyjokes.get_joke())
                 speak(joke)
                 print(joke)
@@ -184,12 +182,9 @@ async def main():
                 webbrowser.get().open(url)
                 speak(f'Here is what I found for {search_term} on google')
 
-            elif 'time' in response or "what is the time" in response or "what's the time" in response:
+            elif there_exists(['what is the time now', 'what time is it', 'time']):
                 strTime = datetime.datetime.now().strftime("%H:%M")
                 speak(f"the time is {strTime}")
-
-            elif "calculator" in response or 'calc' in response:
-                subprocess.call("calc.exe")
 
             elif 'search' in response:
                 response = response.replace("search", "")

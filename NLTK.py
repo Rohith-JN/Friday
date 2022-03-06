@@ -9,8 +9,7 @@ def tokenize(sentence):
 
 
 def stem(word):
-    words = ["organize", "organizes", "organizing"]
-    words = [stem(w) for w in words]
+    return stemmer.stem(word.lower())
 
 
 def bag_of_words(tokenized_sentence, words):

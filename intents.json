@@ -12,15 +12,14 @@
           "How is life"
         ],
         "responses": [
-            "Nice talking with you", 
-            "See you later", 
-            "Good bye...", 
-            "Have a good day"
+            "I am fine, thank's for asking", 
+            "I am alright, thank's for asking",
+            "Hey there, I am pretty good, thanks"
         ]
       },
       {
         "tag": "goodbye",
-        "patterns": ["Good bye", "see you later", "later", "bye", "sleep", "stop", "kill program", "go to sleep"],
+        "patterns": ["Good bye", "see you later", "later", "bye", "sleep", "stop", "kill program", "go to sleep", "goodbye"],
         "responses": [
             "Nice talking with you",
             "See you later", 
