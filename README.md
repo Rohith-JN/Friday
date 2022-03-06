@@ -7,7 +7,7 @@
 3. Send messages to groups and personal chat in telegram
 4. Get stock prices
 5. Access native windows controls like brightness, volume, shutdown, sleep and restart
-6. 
+
 
 # Technologies Used
 
@@ -15,10 +15,6 @@
 2. Telegram API
 4. Yahoo finance API
 5. Wolframalpha API
-
-# Upcoming features
-
-1. Integration of Discord API
 
 ## Meta
 
@@ -33,6 +29,7 @@
 3. Commit your changes (`git commit -am 'Add some fooBar'`)
 4. Push to the branch (`git push origin feature/fooBar`)
 5. Create a new Pull Request
+6. Add new intents in the intents.json
 
 <!-- Markdown link & img dfn's -->
 [Stackoverflow]: https://stackoverflow.com/users/15747757/rohith-nambiar
