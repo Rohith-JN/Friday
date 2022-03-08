@@ -1,36 +1,26 @@
 {
-    "intents": [
-      {
-        "tag": "greeting",
-        "patterns": [
-          "Hi",
-          "Hey",
-          "How are you",
-          "Is anyone there",
-          "How are you doing",
-          "Are you fine",
-          "How is life"
-        ],
-        "responses": [
-            "I am fine, thank's for asking", 
-            "I am alright, thank's for asking",
-            "Hey there, I am pretty good, thanks"
-        ]
-      },
-      {
-        "tag": "goodbye",
-        "patterns": ["Good bye", "see you later", "later", "bye", "sleep", "stop", "kill program", "go to sleep", "goodbye"],
-        "responses": [
-            "Nice talking with you",
-            "See you later", 
-            "Good bye...", 
-            "Have a good day"
-        ]
-      },
-      {
-        "tag": "thanks",
-        "patterns": ["Thanks", "Thank you", "That's helpful", "Thank's a lot!"],
-        "responses": ["Happy to help!", "Any time!", "My pleasure"]
-      }
-    ]
-  }
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hi",
+        "Hey",
+        "How are you",
+        "Is anyone there",
+        "How are you doing",
+        "Are you fine",
+        "How is life"
+      ],
+      "responses": [
+          "I am fine, thank's for asking", 
+          "I am alright, thank's for asking",
+          "Hey there, I am pretty good, thanks"
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": ["Thanks", "Thank you", "That's helpful", "Thank's a lot!"],
+      "responses": ["Happy to help!", "Any time!", "My pleasure"]
+    }
+  ]
+}

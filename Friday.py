@@ -24,6 +24,7 @@ from NLTK import bag_of_words, tokenize
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
 if platform.system()=='Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -88,19 +89,20 @@ async def main():
 
                 probs = torch.softmax(output, dim=1)
                 prob = probs[0][predicted.item()]
+
                 if prob.item() > 0.75:
                     for intent in intents['intents']:
                         if tag == intent["tag"]:
                             speak(f"{random.choice(intent['responses'])}")
-
-                        if tag == "goodbye":
-                            sys.exit(0)
-
                 else:
                     pass
 
                 if there_exists(["close current tab", 'close tab']):
                     keyboard.press_and_release('ctrl+w') 
+
+                elif there_exists(['goodbye', 'bye', 'see you later', 'ok bye']):
+                    speak("Nice talking with you!")
+                    sys.exit(0)
 
                 elif there_exists(['close']):
                     search_term = response.replace('close', '')
@@ -238,31 +240,16 @@ async def main():
                     speak(weather)
                     print(weather)
 
-                elif there_exists(['send a message to']):
-                    search_term = response.replace('send a message to', '').lower()
-
-                    if there_exists(['SD dudes', 'sd', 'sd dudes']):
-                        await sendGroupMessage(CHAT_ID_1, 'SD Dudes')
-
-                    elif there_exists(['Epic group', 'epic', 'epic dudes']):
-                        await sendGroupMessage(CHAT_ID_2, 'Epic Dudes')
-
-                    elif there_exists(['arun', 'Arun']):
-                        await sendUserMessage(user_id_2, 'Arun')
-
-                    elif there_exists(['pranav', 'Pranav']):
-                        await sendUserMessage(user_id_1, 'Pranav')
-
-                    elif there_exists(['thomas', 'Thomas']):
-                        await sendUserMessage(user_id_3, 'Thomas')
-
-                    elif there_exists(['mom', 'Rajath', 'Rajat', 'rajat', 'mum']):
-                        await sendUserMessage(user_id_4, 'Rajath')
-
                 elif there_exists(['what', 'who', 'why', 'where', 'when', 'which']):
                     ans = getQuickAnswers(response)
                     speak(ans)
                     print(ans)
+
+                '''
+                elif there_exists(['send a message to']):
+                    search_term = response.replace('send a message to', '').replace(' ', '')
+                    await sendUserMessage(search_term)
+                '''
 
 asyncio.run(main())
 time.sleep(3)

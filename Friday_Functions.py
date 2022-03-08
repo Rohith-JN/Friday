@@ -7,7 +7,6 @@ import subprocess
 import webbrowser
 import psutil
 import requests
-import win10toast
 import yfinance
 import re
 import wolframalpha
@@ -15,9 +14,7 @@ import speech_recognition as sr
 import pyttsx3
 from paths import paths
 from difflib import SequenceMatcher
-from API_methods import *
 from API_creds import *
-
 
 engine = pyttsx3.init('sapi5')
 rate = engine.getProperty("rate")
@@ -244,27 +241,6 @@ def open_app(name):
     else:
         speak(f'You do not have an app named {name}')
 
-
-#send-user-message
-async def sendUserMessage(user_id, username):
-    speak("What should I send?")
-    response = takeCommand()
-    await Methods().sendPersonalMessage(response, user_id)
-    message = f"Sent a message to {username} in Telegram"
-    win10toast.ToastNotifier().show_toast("Friday", message, duration=10)
-    speak("Message sent successfully")
-
-
-#send-group-message
-async def sendGroupMessage(chat_id, chatname):
-    speak("What should I send")
-    response = takeCommand()
-    await Methods().sendGroupMessage(chat_id, response)
-    message = f"Sent a message to {chatname} in Telegram"
-    win10toast.ToastNotifier().show_toast("Friday", message, duration=10)
-    speak("Message sent successfully")
-
-
 #open-youtube
 def openYoutube():
     speak("opening youtube")
@@ -278,4 +254,3 @@ def location():
     state = data["region"].split(',')
     speak(f'You are in {city},{state}')
     print(f'You are in {city},{state}')
-
