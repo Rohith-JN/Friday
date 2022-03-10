@@ -14,7 +14,7 @@ import speech_recognition as sr
 import pyttsx3
 from paths import paths
 from difflib import SequenceMatcher
-from API_creds import *
+from API_keys import *
 
 engine = pyttsx3.init('sapi5')
 rate = engine.getProperty("rate")

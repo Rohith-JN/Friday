@@ -2,7 +2,7 @@ __pycache__
 session.session
 Friday.bat
 Friday.vbs
-API_creds.py
+API_Keys.py
 .venv
 paths.py
 data.pth

@@ -1,15 +1,10 @@
-import asyncio
 from difflib import SequenceMatcher
-import platform
-from API_creds import *
+from API_keys import *
 from telethon.tl.types import InputPeerUser
 from telethon import TelegramClient
-from telethon import functions
+from telethon import functions, types
 import distance
-
-
-if platform.system()=='Windows':
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+from Friday_Functions import *
 
 class Methods:
 
@@ -26,7 +21,8 @@ class Methods:
         await client.disconnect()
 
     #send-user-message
-    async def sendUserMessage(self, response, message):
+    async def sendUserMessage(self, response):
+        isSent = False
         client = TelegramClient('session', api_id, api_hash)
         await client.connect()
         result = await client(functions.contacts.GetContactsRequest(
@@ -35,10 +31,10 @@ class Methods:
         for user in result.users:
             try:
                 s = SequenceMatcher(None, response, user.first_name)
-                print(response, user.first_name)
-                print(s.ratio())
-                print(distance.levenshtein(response, user.first_name))
                 if s.ratio() > 0.75 or distance.levenshtein(response, user.first_name) < 3:
+                    speak("What do you wanna send?")
+                    message = takeCommand()
+                    isSent = True
                     receiver = InputPeerUser(user.id, 0)
                     await client.send_message(receiver, message, parse_mode='html')
                 else:
@@ -46,3 +42,25 @@ class Methods:
             except Exception:
                 pass
         await client.disconnect()
+        if isSent:
+            speak("Message sent successfully")
+        else:
+            speak("Could not find that user in your contacts")
+
+    async def callUser():
+        client = TelegramClient('session', api_id, api_hash)
+        await client.connect()
+        result = await client(functions.phone.RequestCallRequest(
+            user_id=InputPeerUser(1614122709, 0),
+            g_a_hash=b'32',
+            protocol=types.PhoneCallProtocol(
+                min_layer=42,
+                max_layer=42,
+                library_versions=['some string here'],
+                udp_p2p=True,
+                udp_reflector=True
+            ),
+        ))
+        print(result)
+        await client.disconnect()
+

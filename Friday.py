@@ -16,8 +16,8 @@ import platform
 import keyboard
 import pyautogui
 from Friday_Functions import *
-from API_methods import *
-from API_creds import *
+from Telethon_methods import *
+from API_keys import *
 import torch
 from Model import NeuralNet
 from NLTK import bag_of_words, tokenize
@@ -245,12 +245,10 @@ async def main():
                     speak(ans)
                     print(ans)
 
-                '''
                 elif there_exists(['send a message to']):
                     search_term = response.replace('send a message to', '').replace(' ', '')
-                    await sendUserMessage(search_term)
-                '''
-
+                    await Methods().sendUserMessage(search_term)
+                
 asyncio.run(main())
 time.sleep(3)
 

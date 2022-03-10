@@ -34,3 +34,12 @@
 <!-- Markdown link & img dfn's -->
 [Stackoverflow]: https://stackoverflow.com/users/15747757/rohith-nambiar
 
+## Todo
+
+1. Add more intents
+2. Automate opening and closing apps intelligently
+3. Fix program execution on startup issue
+4. Map functions to a specific intent
+5. Add more Telethon functions to automate Telegram
+6. Automate windows clock
+7. Integrate Youtube Music API and Discord API
