@@ -94,21 +94,24 @@ async def main():
                     for intent in intents['intents']:
                         if tag == intent["tag"]:
                             speak(f"{random.choice(intent['responses'])}")
-                else:
-                    pass
+                            break
+                        else:
+                            pass
+                    else:
+                        pass
 
                 if there_exists(["close current tab", 'close tab']):
                     keyboard.press_and_release('ctrl+w') 
-
-                elif there_exists(['goodbye', 'bye', 'see you later', 'ok bye']):
-                    speak("Nice talking with you!")
-                    sys.exit(0)
 
                 elif there_exists(['close']):
                     search_term = response.replace('close', '')
                     status = close_app(search_term)
                     speak(status)
 
+                elif there_exists(['goodbye', 'bye', 'see you later', 'ok bye']):
+                    speak("Nice talking with you!")
+                    sys.exit(0)
+                
                 elif there_exists(['open google', 'open new tab in google', 'new tab in google']):
                     webbrowser.open_new_tab("https://www.google.com")
                     speak("Google chrome is open now")
@@ -222,7 +225,7 @@ async def main():
 
                 elif there_exists(
                         ['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']):
-                    brightness = sbc.set_brightness(current_brightness - 10)
+                    sbc.set_brightness(current_brightness - 10)
                     speak(f"Decreased brightness by 10 percent")
 
                 elif there_exists(['take a screenshot', 'screenshot', 'capture the screen', 'take a photo of this']):
@@ -248,6 +251,7 @@ async def main():
                 elif there_exists(['send a message to']):
                     search_term = response.replace('send a message to', '').replace(' ', '')
                     await Methods().sendUserMessage(search_term)
+
                 
 asyncio.run(main())
 time.sleep(3)

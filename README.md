@@ -42,4 +42,4 @@
 4. Map functions to a specific intent
 5. Add more Telethon functions to automate Telegram
 6. Automate windows clock
-7. Integrate Youtube Music API and Discord API
+7. Integrate Discord API

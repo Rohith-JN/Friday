@@ -47,12 +47,12 @@ class Methods:
         else:
             speak("Could not find that user in your contacts")
 
-    async def callUser():
+    async def callUser(self):
         client = TelegramClient('session', api_id, api_hash)
         await client.connect()
         result = await client(functions.phone.RequestCallRequest(
-            user_id=InputPeerUser(1614122709, 0),
-            g_a_hash=b'32',
+            user_id=InputPeerUser('user id', 0),
+            g_a_hash=b'',
             protocol=types.PhoneCallProtocol(
                 min_layer=42,
                 max_layer=42,
@@ -63,4 +63,3 @@ class Methods:
         ))
         print(result)
         await client.disconnect()
-
