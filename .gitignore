@@ -3,4 +3,5 @@ session.session
 API_Keys.py
 .venv
 paths.py
-data.pth
+.vscode
+.idea
