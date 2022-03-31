@@ -35,7 +35,15 @@
 
 ## Trying out the project
 
-1. To open apps using Friday you need to first create a file called paths.py and then add the app's name and their paths 
+1. Clone the repository then cd into the repo then install the requirements
+
+```
+git clone https://github.com/Rohith-JN/Personal-assistant
+
+pip install -r requirements.txt
+```
+
+2. To open apps using Friday you need to first create a file called paths.py and then add the app's name and their paths 
 
 ```
 studio = ("android-studio", "android studio", "Android studio")
@@ -45,7 +53,7 @@ paths = {
 }
 ```
 
-2. Make a file called API_keys.py then add these credentials
+3. Make a file called API_keys.py then add these credentials
 
 ```
 api_id = xxxx # telegram api key
