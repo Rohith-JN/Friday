@@ -50,7 +50,7 @@ async def main():
         for wakeCommand in WakeCommands:
             if response.count(wakeCommand) > 0:
                 speak("Yes boss")
-                response = input("You: ")
+                response = takeCommand()
 
                 if there_exists(["close current tab", 'close tab']):
                     keyboard.press_and_release('ctrl+w') 
