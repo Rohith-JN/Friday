@@ -1,4 +1,7 @@
 import datetime
+import json
+import random
+from re import S
 import sys
 import pywhatkit as kit
 import webbrowser
@@ -20,26 +23,22 @@ from API_keys import *
 if platform.system()=='Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-
 current_brightness = sbc.get_brightness()
 notification = win10toast.ToastNotifier()
-
 
 # battery module commands
 battery = psutil.sensors_battery()
 percent = battery.percent
 
-
 win10toast.ToastNotifier().show_toast("Friday", 'Friday has been started', duration=5)
 speak(wishMe())
 print(wishMe())
-
 
 async def main():
     
     def there_exists(terms):
         for term in terms:
-            if term in response:
+            if term in response or SequenceMatcher(None, response, term).ratio() > 0.85:
                 return True
 
     WakeCommands = ['wake up', 'hey friday', 'Hey Friday', 'hey Friday', 'hello', 'Friday', 'friday']
@@ -51,7 +50,7 @@ async def main():
         for wakeCommand in WakeCommands:
             if response.count(wakeCommand) > 0:
                 speak("Yes boss")
-                response = takeCommand()
+                response = input("You: ")
 
                 if there_exists(["close current tab", 'close tab']):
                     keyboard.press_and_release('ctrl+w') 
@@ -71,10 +70,12 @@ async def main():
                     time.sleep(5)
 
                 elif there_exists(['open gmail', 'gmail']):
-                    speak("opening gmail")
                     webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
                     speak("Gmail is open now")
                     time.sleep(5)
+
+                elif 'open youtube' in response:
+                    openYoutube()
 
                 elif there_exists(['open']):
                     search_term = response.replace('open', '')
@@ -83,9 +84,6 @@ async def main():
 
                 elif there_exists(['whats the day today', 'what day is it today', 'day']):
                     speak(f'Today is {getDay()}')
-
-                elif 'open youtube' in response:
-                    openYoutube()
 
                 elif there_exists(['battery percentage', 'what is the battery like right now', 'tell me the battery percentage']):
                     speak("Current battery percentage is at" + str(percent) + "percent")
