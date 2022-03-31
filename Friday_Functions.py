@@ -81,79 +81,88 @@ def note(text):
 
 #function-to-get-stocks
 def getStock(search_term):
-    global full_name, change_percent, change_no, state, price, currency
-    results = []
-    query = requests.get(f'https://yfapi.net/v6/finance/autocomplete?region=IN&lang=en&query={search_term}',
-                         headers={
-                             'accept': 'application/json',
-                             'X-API-KEY': yfinance_api_key
-                         })
-    response = query.json()
-    for i in response['ResultSet']['Result']:
-        final = i['symbol']
-        results.append(final)
-
-    newQuery = requests.get(f'https://yfapi.net/v7/finance/options/{results[0]}',
+    try: 
+        global full_name, change_percent, change_no, state, price, currency
+        results = []
+        query = requests.get(f'https://yfapi.net/v6/finance/autocomplete?region=IN&lang=en&query={search_term}',
                             headers={
                                 'accept': 'application/json',
                                 'X-API-KEY': yfinance_api_key
                             })
-    response = newQuery.json()
-    for i in response['optionChain']['result']:
-        change_percent = i['quote']['regularMarketChangePercent']
-        change_no = i['quote']['regularMarketChange']
-        if '-' in str(change_percent):
-            state = 'fell'
-        else:
-            state =  'rose'
- 
-        change_percent = round(change_percent, 2)
-        change_no = round(change_no, 2)
+        response = query.json()
+        for i in response['ResultSet']['Result']:
+            final = i['symbol']
+            results.append(final)
 
-    try:
-        stock = yfinance.Ticker(results[0])
-        price = stock.info["regularMarketPrice"]
-        full_name = stock.info['longName']
-        currency = stock.info["currency"]
+        newQuery = requests.get(f'https://yfapi.net/v7/finance/options/{results[0]}',
+                                headers={
+                                    'accept': 'application/json',
+                                    'X-API-KEY': yfinance_api_key
+                                })
+        response = newQuery.json()
+        for i in response['optionChain']['result']:
+            change_percent = i['quote']['regularMarketChangePercent']
+            change_no = i['quote']['regularMarketChange']
+            if '-' in str(change_percent):
+                state = 'fell'
+            else:
+                state =  'rose'
+    
+            change_percent = round(change_percent, 2)
+            change_no = round(change_no, 2)
+
+        try:
+            stock = yfinance.Ticker(results[0])
+            price = stock.info["regularMarketPrice"]
+            full_name = stock.info['longName']
+            currency = stock.info["currency"]
+        except Exception as e:
+            print(e)
+
+        return f"Shares of {full_name} {state} by {change_percent} percent or {change_no} at {price} {currency}"
+        
     except Exception as e:
-        print(e)
-
-    return f"Shares of {full_name} {state} by {change_percent} percent or {change_no} at {price} {currency}"
+        speak(e)
 
 
 #function-to-get-quick-answers
 def getQuickAnswers(query):
-    url = "https://api.duckduckgo.com"
-    response = requests.get(url, params={"q": query, "format": "json"})
-    data = response.json()
-    final = ' '.join(re.split(r'(?<=[.])\s', data['Abstract'])[:2])
-    if final == '':
-        appId = wolframalphaApIKey
-        client = wolframalpha.Client(appId)
-        res = client.query(query)
-        answer = next(res.results).text
-        return answer
-    else:
-        return final
-
+    try:
+        url = "https://api.duckduckgo.com"
+        response = requests.get(url, params={"q": query, "format": "json"})
+        data = response.json()
+        final = ' '.join(re.split(r'(?<=[.])\s', data['Abstract'])[:2])
+        if final == '':
+            appId = wolframalphaApIKey
+            client = wolframalpha.Client(appId)
+            res = client.query(query)
+            answer = next(res.results).text
+            return answer
+        else:
+            return final
+    except Exception as e:
+        speak(e)
 
 #get-weather-of-current-location
 def getWeather():
-    api_key = OpenWeather_API_Key
-    base_url = "https://api.openweathermap.org/data/2.5/weather?"
-    complete_url = base_url + "appid=" + api_key + "&q=" + getLocation()
-    response = requests.get(complete_url)
-    x = response.json()
-    if x["cod"] != "404":
-        y = x["main"]
-        current_temperature = y["temp"]
-        z = x["weather"]
-        weather_description = z[0]["description"]
-        temperature = int(current_temperature - 273.15)
+    try:
+        api_key = OpenWeather_API_Key
+        base_url = "https://api.openweathermap.org/data/2.5/weather?"
+        complete_url = base_url + "appid=" + api_key + "&q=" + getLocation()
+        response = requests.get(complete_url)
+        x = response.json()
+        if x["cod"] != "404":
+            y = x["main"]
+            current_temperature = y["temp"]
+            z = x["weather"]
+            weather_description = z[0]["description"]
+            temperature = int(current_temperature - 273.15)
 
-        return f"Current temperature is {temperature} degree celsius with {weather_description}"
-    else:
-        return "City Not Found"
+            return f"Current temperature is {temperature} degree celsius with {weather_description}"
+        else:
+            return "City Not Found"
+    except Exception as e:
+        speak(e)
 
 
 #greet-function
@@ -169,20 +178,23 @@ def wishMe():
 
 #get-weather-of-location
 def getWeatherLocation(search_term):
-    api_key = OpenWeather_API_Key
-    base_url = "https://api.openweathermap.org/data/2.5/weather?"
-    complete_url = base_url + "appid=" + api_key + "&q=" + search_term
-    response = requests.get(complete_url)
-    x = response.json()
-    if x["cod"] != "404":
-        y = x["main"]
-        current_temperature = y["temp"]
-        z = x["weather"]
-        weather_description = z[0]["description"]
-        temperature = int(current_temperature - 273.15)
-        return f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}"
-    else:
-        return "City Not Found"
+    try:
+        api_key = OpenWeather_API_Key
+        base_url = "https://api.openweathermap.org/data/2.5/weather?"
+        complete_url = base_url + "appid=" + api_key + "&q=" + search_term
+        response = requests.get(complete_url)
+        x = response.json()
+        if x["cod"] != "404":
+            y = x["main"]
+            current_temperature = y["temp"]
+            z = x["weather"]
+            weather_description = z[0]["description"]
+            temperature = int(current_temperature - 273.15)
+            return f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}"
+        else:
+            return "City Not Found"
+    except Exception as e:
+        speak(e)
 
 
 #close-app
@@ -228,18 +240,21 @@ def checkIfProcessRunning(processName):
         return True
 
 def open_app(name):
-    for app_name in paths:
-        for app in app_name:
-            s = SequenceMatcher(None, app, name)
-            if s.ratio() > 0.6 and checkIfProcessRunning(app) == True:
-                return speak(f'{name} is already running')
-            
-            elif s.ratio() > 0.6 and checkIfProcessRunning(app) == False:
-                speak(f"Opening {app}")
-                return os.startfile(paths.get(app_name))
-            
-    else:
-        speak(f'You do not have an app named {name}')
+    try:
+        for app_name in paths:
+            for app in app_name:
+                s = SequenceMatcher(None, app, name)
+                if s.ratio() > 0.6 and checkIfProcessRunning(app) == True:
+                    return speak(f'{name} is already running')
+
+                elif s.ratio() > 0.6 and checkIfProcessRunning(app) == False:
+                    speak(f"Opening {app}")
+                    return os.startfile(paths.get(app_name))
+
+        else:
+            speak(f'You do not have an app named {name}')
+    except Exception as e:
+        speak(e)
 
 #open-youtube
 def openYoutube():

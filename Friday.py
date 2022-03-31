@@ -1,7 +1,4 @@
 import datetime
-import json
-import random
-from re import S
 import sys
 import pywhatkit as kit
 import webbrowser

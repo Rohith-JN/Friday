@@ -58,10 +58,7 @@ paths = {
 ```
 api_id = xxxx # telegram api key
 api_hash = xxxx # telegram api hash
-token = xxxx # telegram token
 phone = xxxx # telegram phone number
-
-#API keys
 yfinance_api_key = xxxx
 wolframalphaApIKey = xxxx
 OpenWeather_API_Key = xxxx
