@@ -35,7 +35,7 @@
 
 ## Trying out the project
 
-1. To open apps using Friday you need to first create a file called paths.py and then add apps name and their paths 
+1. To open apps using Friday you need to first create a file called paths.py and then add the app's name and their paths 
 
 ```
 studio = ("android-studio", "android studio", "Android studio")
