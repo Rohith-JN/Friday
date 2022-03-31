@@ -254,5 +254,3 @@ def location():
     state = data["region"].split(',')
     speak(f'You are in {city},{state}')
     print(f'You are in {city},{state}')
-
-getStock('apple')

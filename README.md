@@ -4,10 +4,9 @@
 ## Features
 
 2. Answer different type of questions
-3. Send messages to groups and personal chat in telegram
-4. Get stock prices
+3. Send messages to groups and personal chat in telegram # Telegram credentials required
+4. Get stock prices # YahoofinanceApi required
 5. Access native windows controls like brightness, volume, shutdown, sleep and restart
-
 
 # Technologies Used
 
@@ -34,12 +33,28 @@
 <!-- Markdown link & img dfn's -->
 [Stackoverflow]: https://stackoverflow.com/users/15747757/rohith-nambiar
 
-## Todo
+## Trying out the project
 
-1. Add more intents
-2. Automate opening and closing apps intelligently
-3. Fix program execution on startup issue
-4. Map functions to a specific intent
-5. Add more Telethon functions to automate Telegram
-6. Automate windows clock
-7. Integrate Discord API
+1. To open apps using Friday you need to first create a file called paths.py and then add apps name and their paths 
+
+```
+studio = ("android-studio", "android studio", "Android studio")
+
+paths = {
+    studio: r"C:\Program Files\Android\Android Studio\bin\studio64.exe",
+}
+```
+
+2. Make a file called API_keys.py then add these credentials
+
+```
+api_id = xxxx # telegram api key
+api_hash = xxxx # telegram api hash
+token = xxxx # telegram token
+phone = xxxx # telegram phone number
+
+#API keys
+yfinance_api_key = xxxx
+wolframalphaApIKey = xxxx
+OpenWeather_API_Key = xxxx
+```
