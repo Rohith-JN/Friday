@@ -200,6 +200,9 @@ async def main():
                     search_term = response.replace('send a message to', '').replace(' ', '')
                     await Methods().sendUserMessage(search_term)
 
+                else:
+                    speak("Sorry, I couldn't quit understand that")
+
 asyncio.run(main())
 time.sleep(3)
 
