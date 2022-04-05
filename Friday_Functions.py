@@ -195,7 +195,6 @@ def getWeatherLocation(search_term):
     except Exception as e:
         speak(e)
 
-
 #close-app
 def close_app(app_name):
     running_apps=psutil.process_iter(['pid','name'])
