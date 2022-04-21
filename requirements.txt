@@ -48,7 +48,7 @@ opt-einsum==3.3.0
 packaging==21.3
 pandas==1.4.1
 Pillow==9.0.1
-pipwin==0.5.1
+pipwin==0.5.2
 protobuf==3.19.4
 psutil==5.9.0
 pyaes==1.6.1
