@@ -93,7 +93,7 @@ tf-estimator-nightly==2.8.0.dev2021122109
 torch==1.10.2
 tqdm==4.63.0
 typing-extensions==4.1.1
-tzdata==2021.5
+tzdata==2022.1
 tzlocal==4.1
 urllib3==1.26.8
 watchdog==2.1.6
