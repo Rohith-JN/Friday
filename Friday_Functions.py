@@ -12,7 +12,6 @@ import re
 import wolframalpha
 import speech_recognition as sr
 import pyttsx3
-from paths import paths
 from difflib import SequenceMatcher
 from API_keys import *
 
@@ -26,7 +25,6 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
     
-
 def takeCommand():
     r = sr.Recognizer()
     with sr.Microphone() as source:
@@ -42,14 +40,12 @@ def takeCommand():
             return "None"
         return response.lower()
 
-
 #getcurrent-day
 def getDay():
     today = datetime.datetime.now()
     date = today.strftime("%d %m %y")
     day = datetime.datetime.strptime(date, '%d %m %y').weekday()
     return calendar.day_name[day]
-
 
 #convert-list-to-string
 def listToString(s):
@@ -58,14 +54,12 @@ def listToString(s):
         str1 += ele
     return str1
 
-
 #get-current-location
 def getLocation():
     res = requests.get("https://ipinfo.io/")
     data = res.json()
     city = data["city"].split(',')
     return listToString(city)
-
 
 #function-to-make-a-note
 def note(text):
@@ -76,7 +70,6 @@ def note(text):
 
     sublime = paths.get(sublime)
     subprocess.Popen([sublime, file_name])
-
 
 #function-to-get-stocks
 def getStock(search_term):
@@ -123,7 +116,6 @@ def getStock(search_term):
     except Exception as e:
         speak(e)
 
-
 #function-to-get-quick-answers
 def getQuickAnswers(query):
     try:
@@ -163,7 +155,6 @@ def getWeather():
     except Exception as e:
         speak(e)
 
-
 #greet-function
 def wishMe():
     hour = datetime.datetime.now().hour
@@ -173,7 +164,6 @@ def wishMe():
         return "Good Afternoon Boss"
     else:
         return "Good evening Boss"
-
 
 #get-weather-of-location
 def getWeatherLocation(search_term):
@@ -192,65 +182,6 @@ def getWeatherLocation(search_term):
             return f"Current temperature in {search_term} is {temperature} degree celsius with {weather_description}"
         else:
             return "City Not Found"
-    except Exception as e:
-        speak(e)
-
-#close-app
-def close_app(app_name):
-    running_apps=psutil.process_iter(['pid','name'])
-    found=False
-    for app in running_apps:
-        sys_app=app.info.get('name').split('.')[0].lower()
-
-        if sys_app in app_name.split() or app_name in sys_app:
-            pid=app.info.get('pid')
-            
-            try:
-                app_pid = psutil.Process(pid)
-                app_pid.terminate()
-                found=True
-            except: pass
-            
-        else: pass
-    if not found:
-        return app_name + " is not running"
-    else:
-        return 'Closed ' + app_name
-
-#open-app
-def checkIfProcessRunning(processName):
-    running_apps=psutil.process_iter(['pid','name'])
-    found=False
-    for app in running_apps:
-        sys_app=app.info.get('name').split('.')[0].lower()
-
-        if sys_app in processName.split() or processName in sys_app:
-            pid=app.info.get('pid')
-            
-            try:
-                found=True
-            except: pass
-            
-        else: pass
-    if not found:
-        return False
-    else:
-        return True
-
-def open_app(name):
-    try:
-        for app_name in paths:
-            for app in app_name:
-                s = SequenceMatcher(None, app, name)
-                if s.ratio() > 0.6 and checkIfProcessRunning(app) == True:
-                    return speak(f'{name} is already running')
-
-                elif s.ratio() > 0.6 and checkIfProcessRunning(app) == False:
-                    speak(f"Opening {app}")
-                    return os.startfile(paths.get(app_name))
-
-        else:
-            speak(f'You do not have an app named {name}')
     except Exception as e:
         speak(e)
 

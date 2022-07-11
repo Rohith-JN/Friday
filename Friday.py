@@ -52,11 +52,6 @@ async def main():
                 if there_exists(["close current tab", 'close tab']):
                     keyboard.press_and_release('ctrl+w') 
 
-                elif there_exists(['close']):
-                    search_term = response.replace('close', '')
-                    status = close_app(search_term)
-                    speak(status)
-
                 elif there_exists(['goodbye', 'bye', 'see you later', 'ok bye']):
                     speak("Nice talking with you!")
                     sys.exit(0)
@@ -73,11 +68,6 @@ async def main():
 
                 elif 'open youtube' in response:
                     openYoutube()
-
-                elif there_exists(['open']):
-                    search_term = response.replace('open', '')
-                    search_term = "".join(search_term.split())
-                    open_app(search_term)
 
                 elif there_exists(['whats the day today', 'what day is it today', 'day']):
                     speak(f'Today is {getDay()}')
