@@ -99,7 +99,6 @@ urllib3==1.26.8
 watchdog==2.1.6
 Werkzeug==2.0.3
 wikipedia==1.4.0
-win10toast==0.9
 winspeech==1.0.1
 WMI==1.5.1
 wolframalpha==5.0.0

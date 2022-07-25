@@ -79,7 +79,7 @@ def getStock(search_term):
         query = requests.get(f'https://yfapi.net/v6/finance/autocomplete?region=IN&lang=en&query={search_term}',
                             headers={
                                 'accept': 'application/json',
-                                'X-API-KEY': yfinance_api_key
+                                'X-API-KEY': yfinance_API_key
                             })
         response = query.json()
         for i in response['ResultSet']['Result']:
@@ -89,7 +89,7 @@ def getStock(search_term):
         newQuery = requests.get(f'https://yfapi.net/v7/finance/options/{results[0]}',
                                 headers={
                                     'accept': 'application/json',
-                                    'X-API-KEY': yfinance_api_key
+                                    'X-API-KEY': yfinance_API_key
                                 })
         response = newQuery.json()
         for i in response['optionChain']['result']:
@@ -124,7 +124,7 @@ def getQuickAnswers(query):
         data = response.json()
         final = ' '.join(re.split(r'(?<=[.])\s', data['Abstract'])[:2])
         if final == '':
-            appId = wolframalphaApIKey
+            appId = wolframalpha_API_Key
             client = wolframalpha.Client(appId)
             res = client.query(query)
             answer = next(res.results).text
