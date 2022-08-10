@@ -14,7 +14,9 @@ import keyboard
 import pyautogui
 from Friday_Functions import *
 from Telethon_methods import *
+from typing import Hashable
 from API_keys import *
+from dataclasses import dataclass
 
 if platform.system()=='Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -22,9 +24,15 @@ if platform.system()=='Windows':
 speak(wishMe())
 
 current_brightness = sbc.get_brightness()
-
 battery = psutil.sensors_battery()
 percent = battery.percent
+
+@dataclass
+class ActionInput(Hashable):
+    def __hash__(self) -> int:
+        return str(self.value).__hash__()
+
+    value: list[str]
 
 async def main():
 
@@ -37,60 +45,18 @@ async def main():
         print("Listening..")
         response = takeCommand()
 
-        if there_exists(["close current tab", 'close tab']):
-            keyboard.press_and_release('ctrl+w') 
-
-        elif there_exists(['goodbye', 'bye', 'see you later', 'ok bye']):
-            speak("Nice talking with you!")
-            sys.exit(0)
-        
-        elif there_exists(['open google', 'open new tab in google', 'new tab in google']):
-            webbrowser.open_new_tab("https://www.google.com")
-            speak("Google chrome is open now")
-            time.sleep(5)
-
-        elif there_exists(['open gmail', 'gmail']):
-            webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
-            speak("Gmail is open now")
-            time.sleep(5)
-
-        elif 'open youtube' in response:
-            openYoutube()
-
-        elif there_exists(['whats the day today', 'what day is it today', 'day']):
-            speak(f'Today is {getDay()}')
-
-        elif there_exists(['battery percentage', 'what is the battery like right now', 'tell me the battery percentage']):
-            speak("Current battery percentage is at" + str(percent) + "percent")
-
-        elif there_exists(['what is the current brightness', 'current brightness', 'what is the brightness like right now']):
-            speak(str(sbc.get_brightness()) + "percent")
-
-        elif there_exists(["current location", "location", "where am i", "where am I right now"]):
-            location()
-
-        elif there_exists(['increase volume', 'volume up']):
-            for i in range(3):
-                pyautogui.press('volumeup')
-            speak("Increase volume by 10 percent")
-
-        elif there_exists(['decrease volume', 'volume down']):
-            for i in range(3):
-                pyautogui.press('volumedown')
-            speak("Decreased volume by 10 percent")
-
-        elif there_exists(["play"]):
+        def youtube():
             search_term = response.replace("play", '')
             kit.playonyt(search_term)
             speak(f"Playing {search_term}")
 
-        elif there_exists(["on youtube"]):
+        def searchYoutube():
             search_term = response.replace("on youtube", '')
             url = f"https://www.youtube.com/results?search_query={search_term}"
             webbrowser.get().open(url)
             speak(f'Here is what I found for {search_term} on youtube')
 
-        elif there_exists(["price of", "what is the price of", "tell me the price of"]):
+        def stock():
             engine.setProperty("rate", 150)
             search_term = response.lower().split(" of ")[-1].strip()
             stock = getStock(search_term)
@@ -98,83 +64,53 @@ async def main():
             print(stock)
             engine.setProperty("rate", 175)
 
-        elif there_exists(['take a note', 'note', 'note this down', 'remember this', 'take this down']):
-            speak("What do you want me to note down?")
-            response = takeCommand()
-            note(response)
-            speak("I have made a note of that")
-
-        elif there_exists(['tell me a joke', 'not funny', 'make me laugh', 'joke', 'tell me another joke']):
-            joke = (pyjokes.get_joke())
-            speak(joke)
-            print(joke)
-
-        elif there_exists(["search for"]) and 'youtube' not in response:
+        def search():
             search_term = response.split("for")[-1]
             url = f"https://google.com/search?q={search_term}"
             webbrowser.get().open(url)
             speak(f'Here is what I found for {search_term} on google')
 
-        elif there_exists(['what is the time now', 'what time is it', 'time']):
-            strTime = datetime.datetime.now().strftime("%H:%M")
-            speak(f"the time is {strTime}")
-
-        elif 'search' in response:
-            response = response.replace("search", "")
-            webbrowser.open_new_tab(response)
-            time.sleep(5)
-
-        elif there_exists(['sign out', 'log off']):
-            speak(
-                "Your pc will log off in 10 sec make sure you exit from all applications")
-            subprocess.call(["shutdown", "/l"])
-
-        elif there_exists(['shutdown the pc', 'shutdown', 'shutdown the laptop']):
-            speak("Shutting down your pc, make sure you exit from all applications")
-            subprocess.call(["shutdown", "/s"])
-
-        elif there_exists(['restart', 'restart the pc', 'restart the laptop']):
-            speak("Restarting your pc, make sure you exit from all applications")
-            subprocess.call(["shutdown", "/r"])
-
-        elif there_exists(['what is the weather like right now', 'current temperature', 'climate']):
-            weather = getWeather()
-            speak(weather)
-            print(weather)
-
-        elif there_exists(['increase brightness', 'the brightness is low']):
-            if sbc.get_brightness() == 100:
-                speak("Brightness is already at max")
-            else:
-                brightness = sbc.set_brightness(current_brightness + 10)
-                speak(f"Increased brightness by 10 percent")
-
-        elif there_exists(
-                ['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']):
-            sbc.set_brightness(current_brightness - 10)
-            speak(f"Decreased brightness by 10 percent")
-
-        elif there_exists(['take a screenshot', 'screenshot', 'capture the screen', 'take a photo of this']):
-            image = pyscreenshot.grab()
-            speak("Should I open the image?")
-            response = takeCommand()
-            if there_exists(['yes', 'show', 'show the screenshot']):
-                image.show()
-            else:
-                speak("Ok")
-
-        elif there_exists(['what is the weather in']):
+        def weather():
             search_term = response.replace("what is the weather in", '')
             weather = getWeatherLocation(search_term)
             speak(weather)
             print(weather)
+            
+        actions = {
+            ActionInput(["close current tab", 'close tab']): (lambda: keyboard.press_and_release('ctrl+w')),
+            ActionInput(['goodbye', 'bye', 'see you later', 'ok bye']): (lambda: exit()),
+            ActionInput(['open google', 'open new tab in google', 'new tab in google']): (lambda: google()),
+            ActionInput(['gmail', 'open gmail']): (lambda: gmail()),
+            ActionInput(['open youtube']): (lambda: openYoutube()),
+            ActionInput(['whats the day today', 'what day is it today', 'day']): (lambda: speak(f'Today is {getDay()}')),
+            ActionInput(['battery percentage', 'what is the battery like right now', 'tell me the battery percentage']): (lambda: speak("Current battery percentage is at" + str(percent) + "percent")),
+            ActionInput(['what is the current brightness', 'current brightness', 'what is the brightness like right now']): (lambda: speak(str(sbc.get_brightness()) + "percent")),
+            ActionInput(["current location", "location", "where am i", "where am I right now"]): (lambda: location()),
+            ActionInput(['increase volume', 'volume up']): (lambda: volume('up')),
+            ActionInput(['decrease volume', 'volume down']): (lambda: volume('down')),
+            ActionInput(['play']): (lambda: youtube()),
+            ActionInput(["on youtube"]): (lambda: searchYoutube()),
+            ActionInput(["price of", "what is the price of", "tell me the price of"]): (lambda: stock()),
+            ActionInput(['take a note', 'note', 'note this down', 'remember this', 'take this down']): (lambda: note()),
+            ActionInput(['tell me a joke', 'not funny', 'make me laugh', 'joke', 'tell me another joke']): (lambda: joke()),
+            ActionInput(['search for']): (lambda: search()),
+            ActionInput(['what is the time now', 'what time is it', 'time']): (lambda: speak(f"the time is {datetime.datetime.now().strftime('%H:%M')}")),
+            ActionInput(['sign out', 'log off']): (lambda: logoff()),
+            ActionInput(['shutdown the pc', 'shutdown', 'shutdown the laptop']): (lambda: shutdown()),
+            ActionInput(['restart', 'restart the pc', 'restart the laptop']): (lambda: restart()),
+            ActionInput(['what is the weather like right now', 'current temperature', 'climate']): (lambda: speak(getWeather())),
+            ActionInput(['increase brightness', 'the brightness is low']): (lambda: brightness('increase')),
+            ActionInput(['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']): (lambda: brightness('decrease')),
+            ActionInput(['take a screenshot', 'screenshot', 'capture the screen', 'take a photo of this']): (lambda: screenshot()),
+            ActionInput(['what is the weather in']): (lambda: weather()),
+            ActionInput(['what', 'who', 'why', 'where', 'when', 'which']): (lambda: speak(getQuickAnswers((response)))),
+        }
 
-        elif there_exists(['what', 'who', 'why', 'where', 'when', 'which']):
-            ans = getQuickAnswers(response)
-            speak(ans)
-            print(ans)
+        for key in actions:
+            if there_exists(key.value):
+                actions[key]()
 
-        elif there_exists(['send a message to']):
+        if there_exists(['send a message to']):
             search_term = response.replace('send a message to', '').replace(' ', '')
             await Methods().sendUserMessage(search_term)
 

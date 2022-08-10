@@ -3,6 +3,7 @@
 import calendar
 import datetime
 import os
+import sys
 import subprocess
 import webbrowser
 import psutil
@@ -39,6 +40,75 @@ def takeCommand():
         except Exception as e:
             return "None"
         return response.lower()
+
+def exit():
+    speak("Nice talking with you")
+    sys.exit(0)
+
+def google():
+    webbrowser.open_new_tab("https://www.google.com")
+    time.sleep(5)
+
+def gmail():
+    webbrowser.open_new_tab("https://mail.google.com/mail/u/0/#inbox")
+    time.sleep(5)
+
+def volume(status):
+    if status == 'up':
+        for i in range(3):
+            pyautogui.press('volumeup')
+            speak("Increased volume by 10 percent")
+    elif status == 'down':
+        for i in range(3):
+            pyautogui.press('volumedown')
+            speak("Decreased volume by 10 percent")
+
+def note():
+    speak("What do you want me to note down?")
+    response = takeCommand()
+    note(response)
+    speak("I have made a note of that")
+
+def joke():
+    joke = (pyjokes.get_joke())
+    speak(joke)
+    print(joke)
+
+def logoff():
+    speak(
+        "Your pc will log off in 10 sec make sure you exit from all applications")
+    subprocess.call(["shutdown", "/l"])
+        
+def shutdown():
+    speak("Shutting down your pc, make sure you exit from all applications")
+    subprocess.call(["shutdown", "/s"])
+
+def restart():
+    speak("Restarting your pc, make sure you exit from all applications")
+    subprocess.call(["shutdown", "/r"])
+
+def brightness(status):
+    if status == 'increase':
+        if sbc.get_brightness() == 100:
+            speak("Brightness is already at max")
+        else:
+            brightness = sbc.set_brightness(current_brightness + 10)
+            speak(f"Increased brightness by 10 percent")
+    elif status == 'decrease':
+        if sbc.get_brightness() == 0:
+            speak("Brightness is already at 0")
+        else:
+            sbc.set_brightness(current_brightness - 10)
+            speak(f"Decreased brightness by 10 percent") 
+
+def screenshot():
+    image = pyscreenshot.grab()
+    speak("Should I open the image?")
+    response = takeCommand()
+    if there_exists(['yes', 'show', 'show the screenshot']):
+        image.show()
+    else:
+        speak("Ok")
 
 #getcurrent-day
 def getDay():
