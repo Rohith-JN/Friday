@@ -1,5 +1,4 @@
 # Functions for Friday
-
 import calendar
 import datetime
 import os
@@ -41,7 +40,7 @@ def takeCommand():
             return "None"
         return response.lower()
 
-def exit():
+def powerdown():
     speak("Nice talking with you")
     sys.exit(0)
 
@@ -63,7 +62,7 @@ def volume(status):
             pyautogui.press('volumedown')
             speak("Decreased volume by 10 percent")
 
-def note():
+def notedown():
     speak("What do you want me to note down?")
     response = takeCommand()
     note(response)

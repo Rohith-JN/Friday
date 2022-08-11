@@ -1,17 +1,9 @@
-import datetime
-import sys
 import pywhatkit as kit
 import webbrowser
-import psutil
-import time
-import subprocess
 import screen_brightness_control as sbc
-import pyjokes
-import pyscreenshot
 import asyncio
 import platform
 import keyboard
-import pyautogui
 from Friday_Functions import *
 from Telethon_methods import *
 from typing import Hashable
@@ -78,7 +70,7 @@ async def main():
             
         actions = {
             ActionInput(["close current tab", 'close tab']): (lambda: keyboard.press_and_release('ctrl+w')),
-            ActionInput(['goodbye', 'bye', 'see you later', 'ok bye']): (lambda: exit()),
+            ActionInput(['goodbye', 'bye', 'see you later', 'ok bye']): (lambda: powerdown()),
             ActionInput(['open google', 'open new tab in google', 'new tab in google']): (lambda: google()),
             ActionInput(['gmail', 'open gmail']): (lambda: gmail()),
             ActionInput(['open youtube']): (lambda: openYoutube()),
@@ -91,7 +83,7 @@ async def main():
             ActionInput(['play']): (lambda: youtube()),
             ActionInput(["on youtube"]): (lambda: searchYoutube()),
             ActionInput(["price of", "what is the price of", "tell me the price of"]): (lambda: stock()),
-            ActionInput(['take a note', 'note', 'note this down', 'remember this', 'take this down']): (lambda: note()),
+            ActionInput(['take a note', 'note', 'note this down', 'remember this', 'take this down']): (lambda: notedown()),
             ActionInput(['tell me a joke', 'not funny', 'make me laugh', 'joke', 'tell me another joke']): (lambda: joke()),
             ActionInput(['search for']): (lambda: search()),
             ActionInput(['what is the time now', 'what time is it', 'time']): (lambda: speak(f"the time is {datetime.datetime.now().strftime('%H:%M')}")),
