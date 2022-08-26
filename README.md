@@ -15,13 +15,15 @@
 4. Yahoo finance API
 5. Wolframalpha API
 
-## Contributing
+# Try out the program
 
-1. Fork it (<https://github.com/Rohith-JN/Personal-assistant/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
+Feel free to try out the program for yourself but some queries will not work without these:
 
-<!-- Markdown link & img dfn's -->
-[Stackoverflow]: https://stackoverflow.com/users/15747757/rohith-nambiar
+1) Telegram user api id
+2) Telegram user api hash
+3) Telegram user phone number
+4) yahoo finance api key
+5) wolframalpha api key
+6) open weather api key
+
+Install the python modules listed in the requirements file and also install pyaudio + wheel 

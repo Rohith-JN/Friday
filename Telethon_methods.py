@@ -1,3 +1,6 @@
+#Contains telegram functions
+#requires telegram user credentials
+
 from difflib import SequenceMatcher
 import json
 from API_keys import *
@@ -14,6 +17,7 @@ class Methods:
         self.api_hash = api_hash,
         self.phone = phone
 
+    #authorize user using phone number
     async def authorize(self, client):
         await client.connect()
         if not await client.is_user_authorized():
@@ -21,7 +25,7 @@ class Methods:
             await client.sign_in(phone, input('Enter the code: '))
         await client.disconnect()
 
-    #send-user-message
+    #matches the user specified contact to the contact in the contacts list and sends message
     async def sendUserMessage(self, response):
         isSent = False
         client = TelegramClient('session', api_id, api_hash)
