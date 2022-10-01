@@ -94,7 +94,7 @@ async def main():
             ActionInput(['increase brightness', 'the brightness is low']): (lambda: brightness('increase')),
             ActionInput(['decrease brightness', 'dim', 'dim the laptop', 'dim the screen', 'the screen is too bright']): (lambda: brightness('decrease')),
             ActionInput(['take a screenshot', 'screenshot', 'capture the screen', 'take a photo of this']): (lambda: screenshot()),
-            ActionInput(['what is the weather in']): (lambda: weather()),
+            ActionInput(['what is the weather like right now', 'weather']): (lambda: getWeather()),
             ActionInput(['what', 'who', 'why', 'where', 'when', 'which']): (lambda: speak(getQuickAnswers((response)))),
         }
 

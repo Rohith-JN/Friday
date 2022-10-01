@@ -239,6 +239,26 @@ def getWeather():
     except Exception as e:
         speak(e)
 
+def getWeatherLocation(location):
+    try:
+        api_key = OpenWeather_API_Key
+        base_url = "https://api.openweathermap.org/data/2.5/weather?"
+        complete_url = base_url + "appid=" + api_key + "&q=" + location
+        response = requests.get(complete_url)
+        x = response.json()
+        if x["cod"] != "404":
+            y = x["main"]
+            current_temperature = y["temp"]
+            z = x["weather"]
+            weather_description = z[0]["description"]
+            temperature = int(current_temperature - 273.15)
+
+            return f"Current temperature is {temperature} degree celsius with {weather_description}"
+        else:
+            return "City Not Found"
+    except Exception as e:
+        speak(e)
+
 #greets the user
 def wishMe():
     hour = datetime.datetime.now().hour
