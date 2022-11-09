@@ -5,7 +5,7 @@ import asyncio
 import platform
 import keyboard
 from Friday_Functions import *
-from Telethon_methods import *
+from Telethon import *
 from typing import Hashable
 from API_keys import *
 from dataclasses import dataclass
