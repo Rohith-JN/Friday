@@ -7,7 +7,7 @@ import keyboard
 from Friday_Functions import *
 from Telethon import *
 from typing import Hashable
-from API_keys import *
+from API import *
 from dataclasses import dataclass
 
 if platform.system()=='Windows':
@@ -42,18 +42,11 @@ async def main():
             kit.playonyt(search_term)
             speak(f"Playing {search_term}")
 
-        def searchYoutube():
-            search_term = response.replace("on youtube", '')
-            url = f"https://www.youtube.com/results?search_query={search_term}"
-            webbrowser.get().open(url)
-            speak(f'Here is what I found for {search_term} on youtube')
-
         def stock():
             engine.setProperty("rate", 150)
             search_term = response.lower().split(" of ")[-1].strip()
             stock = getStock(search_term)
             speak(stock)
-            print(stock)
             engine.setProperty("rate", 175)
 
         def search():
@@ -66,7 +59,6 @@ async def main():
             search_term = response.replace("what is the weather in", '')
             weather = getWeatherLocation(search_term)
             speak(weather)
-            print(weather)
             
         actions = {
             ActionInput(["close current tab", 'close tab']): (lambda: keyboard.press_and_release('ctrl+w')),
@@ -81,7 +73,6 @@ async def main():
             ActionInput(['increase volume', 'volume up']): (lambda: volume('up')),
             ActionInput(['decrease volume', 'volume down']): (lambda: volume('down')),
             ActionInput(['play']): (lambda: youtube()),
-            ActionInput(["on youtube"]): (lambda: searchYoutube()),
             ActionInput(["price of", "what is the price of", "tell me the price of"]): (lambda: stock()),
             ActionInput(['take a note', 'note', 'note this down', 'remember this', 'take this down']): (lambda: notedown()),
             ActionInput(['tell me a joke', 'not funny', 'make me laugh', 'joke', 'tell me another joke']): (lambda: joke()),

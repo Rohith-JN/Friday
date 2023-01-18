@@ -13,7 +13,7 @@ import wolframalpha
 import speech_recognition as sr
 import pyttsx3
 from difflib import SequenceMatcher
-from API_keys import *
+from API import *
 
 #PYTTSX3: python-text-to-speech
 engine = pyttsx3.init('sapi5')
@@ -79,7 +79,6 @@ def notedown():
 def joke():
     joke = (pyjokes.get_joke())
     speak(joke)
-    print(joke)
 
 #logs-off the pc
 def logoff():
